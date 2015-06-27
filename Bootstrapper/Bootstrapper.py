@@ -1,17 +1,28 @@
 import logging
 import argparse
 
+
 def get_arguments_parser():
-    parser = argparse.ArgumentParser(description='Bootstrapping phase of the Google Play Store Crawler')
+    parser = argparse.ArgumentParser(description='Bootstrapping phase of the \
+                                     Google Play Store Crawler')
 
     # All arguments start with "-", hence, they are all handled as optional
-    parser.add_argument('--console-log-verbosity', type=str, choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
-                        help='Log Verbosity Level (default=INFO)', default='INFO')
+    parser.add_argument('--console-log-verbosity',
+                        type=str,
+                        choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
+                        help='Log Verbosity Level (default=INFO)',
+                        default='INFO')
 
-    parser.add_argument('--file-log-verbosity', type=str, choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
-                        help='Log Verbosity Level (default=ERROR)', default='ERROR')
+    parser.add_argument('--file-log-verbosity',
+                        type=str,
+                        choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
+                        help='Log Verbosity Level (default=ERROR)',
+                        default='ERROR')
 
-    parser.add_argument('--log-file', type=str, help='Path of the output log file (default is console-only logging)')
+    parser.add_argument('--log-file',
+                        type=str,
+                        help='Path of the output log file (default is \
+                              console-only logging)')
 
     return parser
 
@@ -47,7 +58,8 @@ def configure_log(args):
     logger = logging.getLogger('Bootstrapper')
     logger.setLevel(console_log_level)
     cli_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - \
+                                   %(message)s')
     cli_handler.setFormatter(formatter)
     logger.addHandler(cli_handler)
 
@@ -59,6 +71,7 @@ def configure_log(args):
         logger.addHandler(file_handler)
 
     return logger
+
 
 def start_bootstrapping():
     args_parser = get_arguments_parser()
