@@ -1,10 +1,16 @@
 import logging
 import argparse
+import BootstrappingSeed
 
 
 def get_arguments_parser():
     parser = argparse.ArgumentParser(description='Bootstrapping phase of the \
                                      Google Play Store Crawler')
+
+    parser.add_argument('bootstrapping-terms',
+                        type=file,
+                        help='Path to the xml containing the bootstrapping \
+                             terms that should be loaded')
 
     # All arguments start with "-", hence, they are all handled as optional
     parser.add_argument('--console-log-verbosity',
@@ -78,6 +84,11 @@ def start_bootstrapping():
     args = vars(args_parser.parse_args())
 
     logger = configure_log(args)
+
+    # Loads different "seed" terms from the input xml file received
+    bs_seed = BootstrappingSeed.Seed(args['bootstrapping-terms'])
+    bs_seed.initialize_seed_class()
+
 
 if __name__ == "__main__":
     start_bootstrapping()
