@@ -89,6 +89,9 @@ def start_bootstrapping():
     bs_seed = BootstrappingSeed.Seed(args['bootstrapping-terms'])
     bs_seed.initialize_seed_class()
 
+    # Request for each top level category
+    for top_level_category in bs_seed._top_level_categories:
+        print top_level_category[1]
 
 if __name__ == "__main__":
     start_bootstrapping()
