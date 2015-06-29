@@ -1,6 +1,7 @@
 import logging
 import argparse
 import BootstrappingSeed
+import requests
 
 
 def get_arguments_parser():
@@ -91,7 +92,17 @@ def start_bootstrapping():
 
     # Request for each top level category
     for top_level_category in bs_seed._top_level_categories:
-        print top_level_category[1]
+        crawl_category(top_level_category[1])
+
+def crawl_category(category_url):
+    response = requests.get(category_url,
+                            headers = {"Content-Type": "charset=UTF-8",
+                                       "Accept-Language":"en-US,en;q=0.6,en;q=0.4,es;q=0.2"})
+    print response.text
+
+    # Add html - response.text - on MongoDB
+
+    return
 
 if __name__ == "__main__":
     start_bootstrapping()
