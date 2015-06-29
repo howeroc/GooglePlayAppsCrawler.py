@@ -1,5 +1,5 @@
 @echo off
-set "VIRTUAL_ENV=E:\Development\Projects\Github\GooglePlayAppsCrawler.py\v_Environment"
+set "VIRTUAL_ENV=E:\Projects\GooglePlayAppsCrawler.py\v_Environment"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"

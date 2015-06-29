@@ -1,4 +1,0 @@
-1 - Creating the Environment : virtualenv NAME_OF_THE_ENV
-2 - Activating the Environment : Scripts\activate
-3 - Installing packages from requirements.txt : pip install -r requirements.txt
-4 - Deactivating Environment: deactivate (in any folder)
