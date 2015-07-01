@@ -2,6 +2,8 @@ import logging
 import argparse
 import BootstrappingSeed
 import requests
+from lxml import html
+import StringIO
 
 
 def get_arguments_parser():
@@ -96,13 +98,42 @@ def start_bootstrapping():
 
 def crawl_category(category_url):
     response = requests.get(category_url,
-                            headers = {"Content-Type": "charset=UTF-8",
-                                       "Accept-Language":"en-US,en;q=0.6,en;q=0.4,es;q=0.2"})
-    print response.text
+                            headers = {'content-type':
+                                            'text/html; charset=UTF-8',
+                                       'Accept-Language':
+                                            'en-US,en;q=0.6,en;q=0.4,es;q=0.2'})
 
-    # Add html - response.text - on MongoDB
+    # Do pagination
+
+    # Parse page to get urls of other apps
+    urls = parse_app_urls(response.text)
+
+    # Insert urls on MongoDB
+
 
     return
+
+def parse_app_urls(page_text):
+
+    found_urls = []
+
+    # Set tree for html formatting
+    tree = html.fromstring(page_text)
+
+    # Xpath parsing
+    urls = tree.xpath("//div[@class='details']/a[@class='card-click-target' and \
+                    @tabindex='-1' and @aria-hidden='true']")
+
+    # Sanity check
+    if urls is None or len(urls) == 0:
+        return found_urls
+
+    # Go on each node looking for urls
+    for node in urls:
+        if "href" in node.attrib and "details?id=" in node.attrib["href"]:
+            found_urls.append(node.attrib["href"])
+
+    return found_urls
 
 if __name__ == "__main__":
     start_bootstrapping()
