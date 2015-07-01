@@ -26,7 +26,7 @@ class MongoWrapper:
 
             - auth_database (str) - name of the authentication database
 
-            - safe_mode (bool) - Write Concern ( Check at
+            - write_concern (bool) - Write Concern ( Check at
             http://docs.mongodb.org/manual/core/write-concern/#write-concern)
 
             - read_secondary (bool) - Read Preference (Default: false)
@@ -58,7 +58,7 @@ class MongoWrapper:
             uri_builder.append(kwargs['auth_database'])
             uri_builder.append('&')
 
-        if 'safe_mode' in kwargs:
+        if 'write_concern' in kwargs:
             uri_builder.append('w=1&')
         else:
             uri_builder.append('w=0&')
@@ -78,11 +78,11 @@ class MongoWrapper:
     def connect(self, uri, database, collection=None):
         """
         Positional Arguments:
-        uri (string) - Mongo-compliant connection uri string
+        - uri (string) - Mongo-compliant connection uri string
         database (string) - name of the database you want to connect to
 
         Optional Arguments:
-        collection (string) - name of the collection you want to reach
+        - collection (string) - name of the collection you want to reach
                               (Default: None)
         """
 
@@ -103,6 +103,51 @@ class MongoWrapper:
 
         return False
 
+    def app_processed(self, app_url, collection=None):
+        """
+        Checks whether an app (identified by the url) already got processed
+        or not.
+
+        Positional Arguments:
+        - app_url (str) - Full url of the app to be searched
+
+        Optional Arguments:
+        - collection (str) - Name of the collection to be searched
+                             (Default: None)
+
+
+        returns True if the app was found, false otherwise
+        """
+
+        query = {'Url': app_url}
+
+        # Checking for the need to use the parameter collection
+        if collection is not None:
+            return self._database[collection].find_one(query) != None
+
+        return self._collection.find_one(query) != None
+
+    def insert(self, app, collection=None):
+        """
+        Inserts an app into the default class collection or into
+        the specified one, if any.
+
+        Positional Arguments
+        - app (Any) - Record to be inserted
+
+        Optional Arguments
+        - collection (str) - Name of the collection that the record should be
+        added to. (Default: None)
+
+        returns True if the operation worked, False otherwise
+        """
+
+        if collection is None:
+            return self._collection.insert_one(app).acknowledged
+
+        return self._database[collection].insert_one(app).acknowledged
+
+
 if __name__ == '__main__':
 
     print 'Connecting to the database'
@@ -116,6 +161,7 @@ if __name__ == '__main__':
     params['password'] = 'g22LrJvULU5B'
     params['seed_collection'] = 'Python_test'
     params['auth_database'] = 'MobileAppsData'
+    params['write_concern'] = True
 
     mongo_uri = MongoWrapper.build_mongo_uri(params)
 
