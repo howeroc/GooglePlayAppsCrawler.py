@@ -127,7 +127,12 @@ class MongoDBWrapper:
 
         return self._collection.find_one(query) != None
 
-    def insert(self, app, collection=None):
+    def insert_on_queue(self, app_url, collection=None):
+        queue_record = {'_id': app_url, 'IsBusy':False}
+
+        self._insert(queue_record, collection)
+
+    def _insert(self, app, collection=None):
         """
         Inserts an app into the default class collection or into
         the specified one, if any.

@@ -22,13 +22,13 @@ class Bootstrapper:
         params['database'] = 'MobileAppsData'
         params['username'] = 'GitHubCrawlerUser'
         params['password'] = 'g22LrJvULU5B'
-        params['seed_collection'] = 'Python_test'
+        params['seed_collection'] = 'PlayStore_QueuedApps_2015_05_PY'
         params['auth_database'] = 'MobileAppsData'
         params['write_concern'] = True
         self._params = params
 
         # Urls Hashset
-        self.parsed_urls = set()
+        self._parsed_urls = set()
 
     def get_arguments_parser(self):
         """
@@ -136,6 +136,7 @@ class Bootstrapper:
 
         mongo_uri = MongoDBWrapper.build_mongo_uri(**kwargs)
         mongo_wrapper = MongoDBWrapper()
+        self._mongo_wrapper = mongo_wrapper
         return mongo_wrapper.connect(mongo_uri, kwargs['database'],
                                      kwargs['seed_collection'])
 
@@ -150,28 +151,27 @@ class Bootstrapper:
         Extracts urls out of a HTML search page result,
         taking care of duplicates
         """
-
-        found_urls = []
-
         # Set tree for html formatting
         tree = html.fromstring(page_text)
 
         # Xpath parsing
-        urls = tree.xpath("//div[@class='details'] \
-                          /a[@class='card-click-target' \
-                          and \
-                          @tabindex='-1' and @aria-hidden='true']'")
+        xpath = "//div[@class='details']/a[@class='card-click-target' and \
+                @tabindex='-1' and @aria-hidden='true']"
+        urls = tree.xpath(xpath)
 
         # Sanity check
         if urls is None or len(urls) == 0:
-            return found_urls
+            yield None
 
         # Go on each node looking for urls
         for node in urls:
             if "href" in node.attrib and "details?id=" in node.attrib["href"]:
-                found_urls.append(node.attrib["href"])
+                url = node.attrib["href"]
 
-        return map(self.fix_url, found_urls)
+                # Duplicates Check
+                if url not in self._parsed_urls:
+                    self._parsed_urls.add(url)
+                    yield self.fix_url(url)
 
     def start_bootstrapping(self):
         """
@@ -218,9 +218,9 @@ class Bootstrapper:
         # Parse page to get urls of other apps
         urls = self.parse_app_urls(response.text)
 
-        for idx, url in enumerate(urls):
-            print '%d - %s' % (idx, url)
-
+        # Adding Urls to MongoDB
+        for url in urls:
+            self._mongo_wrapper.insert_on_queue(url)
 
 # Starting Point
 if __name__ == "__main__":
