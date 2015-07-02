@@ -7,7 +7,25 @@ import errno
 from lxml import html
 from Shared.MongoWrapper import MongoDBWrapper
 
+
 class Bootstrapper:
+
+    def __init__(self):
+        """
+        Class Constructor : Initializes MongoDB
+        configuration on a dictionary
+        """
+
+        params = {}
+        params['server'] = 'mobiledata.bigdatacorp.com.br'
+        params['port'] = '21766'
+        params['database'] = 'MobileAppsData'
+        params['username'] = 'GitHubCrawlerUser'
+        params['password'] = 'g22LrJvULU5B'
+        params['seed_collection'] = 'Python_test'
+        params['auth_database'] = 'MobileAppsData'
+        params['write_concern'] = True
+        self._params = params
 
     def get_arguments_parser(self):
         """
@@ -15,8 +33,9 @@ class Bootstrapper:
         lib
         """
 
-        parser = argparse.ArgumentParser(description='Bootstrapping phase of the \
-                                         Google Play Store Crawler')
+        parser = argparse.ArgumentParser(description='Bootstrapping phase of \
+                                                     the Google Play \
+                                                     Store Crawler')
 
         parser.add_argument('bootstrapping-terms',
                             type=file,
@@ -26,13 +45,15 @@ class Bootstrapper:
         # All arguments start with "-", hence, they are all handled as optional
         parser.add_argument('--console-log-verbosity',
                             type=str,
-                            choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
+                            choices=['INFO', 'DEBUG', 'WARN',
+                                     'ERROR', 'CRITICAL'],
                             help='Log Verbosity Level (default=INFO)',
                             default='INFO')
 
         parser.add_argument('--file-log-verbosity',
                             type=str,
-                            choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
+                            choices=['INFO', 'DEBUG', 'WARN',
+                                     'ERROR', 'CRITICAL'],
                             help='Log Verbosity Level (default=ERROR)',
                             default='ERROR')
 
@@ -42,7 +63,6 @@ class Bootstrapper:
                                   console-only logging)')
 
         return parser
-
 
     def get_log_level_from_string(self, logLevel):
         """
@@ -72,7 +92,6 @@ class Bootstrapper:
 
         return None
 
-
     def configure_log(self, args):
         cli_log_verbosity = args['console_log_verbosity']
         file_log_verbosity = args['file_log_verbosity']
@@ -85,8 +104,8 @@ class Bootstrapper:
         logger = logging.getLogger('Bootstrapper')
         logger.setLevel(cli_log_level)
         cli_handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - ' \
-                                      '%(levelname)s - \
+        formatter = logging.Formatter('%(asctime)s - %(name)s - \
+                                      %(levelname)s - \
                                        %(message)s')
         cli_handler.setFormatter(formatter)
         logger.addHandler(cli_handler)
@@ -100,7 +119,6 @@ class Bootstrapper:
 
         return logger
 
-
     def configure_mongodb(self, **kwargs):
         """
         Configures the MongoDB connection wrapper
@@ -110,7 +128,7 @@ class Bootstrapper:
         mongo_uri = MongoDBWrapper.build_mongo_uri(**kwargs)
         mongo_wrapper = MongoDBWrapper()
         return mongo_wrapper.connect(mongo_uri, kwargs['database'],
-                                             kwargs['seed_collection'])
+                                     kwargs['seed_collection'])
 
     def parse_app_urls(self, page_text):
 
@@ -134,7 +152,6 @@ class Bootstrapper:
 
         return found_urls
 
-
     def start_bootstrapping(self):
         """
         Main Method - Iterates over all categories, keywords,
@@ -147,21 +164,9 @@ class Bootstrapper:
 
         self._logger = self.configure_log(args)
 
-        # MongoDB Parameters
-        params = {}
-        params['server'] = 'mobiledata.bigdatacorp.com.br'
-        params['port'] = '21766'
-        params['database'] = 'MobileAppsData'
-        params['username'] = 'GitHubCrawlerUser'
-        params['password'] = 'g22LrJvULU5B'
-        params['seed_collection'] = 'Python_test'
-        params['auth_database'] = 'MobileAppsData'
-        params['write_concern'] = True
-
-        if not self.configure_mongodb(**params):
+        if not self.configure_mongodb(**self.params):
             self._logger.fatal('Error configuring MongoDB')
             sys.exit(errno.ECONNREFUSED)
-
 
         # Loads different "seed" terms from the input xml file received
         bs_seed = BootstrappingSeed.Seed(args['bootstrapping-terms'])
@@ -170,7 +175,6 @@ class Bootstrapper:
         # Request for each top level category
         for top_level_category in bs_seed._top_level_categories:
             self.crawl_category(top_level_category)
-
 
         def crawl_category(self, category):
             """
@@ -186,14 +190,15 @@ class Bootstrapper:
                                     headers={'content-type':
                                              'text/html; charset=UTF-8',
                                              'Accept-Language':
-                                             'en-US,en;q=0.6,en;q=0.4,es;q=0.2'})
+                                             'en-US,en;q=0.6,en; \
+                                              q=0.4,es;q=0.2'})
 
             self._logger.info('Parsing Category : %s' % category_name)
 
             parsed_urls = set()
 
             # Parse page to get urls of other apps
-            urls = parse_app_urls(response.text)
+            urls = self.parse_app_urls(response.text)
 
             # Insert urls on MongoDB
 
