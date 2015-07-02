@@ -27,6 +27,9 @@ class Bootstrapper:
         params['write_concern'] = True
         self._params = params
 
+        # Urls Hashset
+        self.parsed_urls = set()
+
     def get_arguments_parser(self):
         """
         Creates a parsing object using the argsparse
@@ -93,6 +96,13 @@ class Bootstrapper:
         return None
 
     def configure_log(self, args):
+        """
+        Configures the logger object that is used
+        for logging to both CLI output and file
+
+        returns: An instance of a logger class
+        """
+
         cli_log_verbosity = args['console_log_verbosity']
         file_log_verbosity = args['file_log_verbosity']
 
@@ -122,7 +132,6 @@ class Bootstrapper:
     def configure_mongodb(self, **kwargs):
         """
         Configures the MongoDB connection wrapper
-        :return:
         """
 
         mongo_uri = MongoDBWrapper.build_mongo_uri(**kwargs)
@@ -130,7 +139,17 @@ class Bootstrapper:
         return mongo_wrapper.connect(mongo_uri, kwargs['database'],
                                      kwargs['seed_collection'])
 
+    def fix_url(self, url):
+        """ Fix relative Urls by appending the prefix to them """
+
+        url_prefix = 'https://play.google.com'
+        return "{0}{1}".format(url_prefix, url)
+
     def parse_app_urls(self, page_text):
+        """
+        Extracts urls out of a HTML search page result,
+        taking care of duplicates
+        """
 
         found_urls = []
 
@@ -138,8 +157,10 @@ class Bootstrapper:
         tree = html.fromstring(page_text)
 
         # Xpath parsing
-        urls = tree.xpath("//div[@class='details']/a[@class='card-click-target' and \
-                        @tabindex='-1' and @aria-hidden='true']")
+        urls = tree.xpath("//div[@class='details'] \
+                          /a[@class='card-click-target' \
+                          and \
+                          @tabindex='-1' and @aria-hidden='true']'")
 
         # Sanity check
         if urls is None or len(urls) == 0:
@@ -150,7 +171,7 @@ class Bootstrapper:
             if "href" in node.attrib and "details?id=" in node.attrib["href"]:
                 found_urls.append(node.attrib["href"])
 
-        return found_urls
+        return map(self.fix_url, found_urls)
 
     def start_bootstrapping(self):
         """
@@ -164,7 +185,7 @@ class Bootstrapper:
 
         self._logger = self.configure_log(args)
 
-        if not self.configure_mongodb(**self.params):
+        if not self.configure_mongodb(**self._params):
             self._logger.fatal('Error configuring MongoDB')
             sys.exit(errno.ECONNREFUSED)
 
@@ -176,33 +197,29 @@ class Bootstrapper:
         for top_level_category in bs_seed._top_level_categories:
             self.crawl_category(top_level_category)
 
-        def crawl_category(self, category):
-            """
-            Executes a GET request for the url of the category received
-            and paginates through all the results
-            :return:
-            """
+    def crawl_category(self, category):
+        """
+        Executes a GET request for the url of the category received
+        and paginates through all the results
+        :return:
+        """
 
-            category_url = category[1]
-            category_name = category[0]
+        category_url = category[1]
+        category_name = category[0]
 
-            response = requests.get(category_url,
-                                    headers={'content-type':
-                                             'text/html; charset=UTF-8',
-                                             'Accept-Language':
-                                             'en-US,en;q=0.6,en; \
-                                              q=0.4,es;q=0.2'})
+        response = requests.get(category_url,
+                                headers={'content-type':
+                                         'text/html; charset=UTF-8',
+                                         'Accept-Language':
+                                         'en-US,en;q=0.6,en;q=0.4,es;q=0.2'})
 
-            self._logger.info('Parsing Category : %s' % category_name)
+        self._logger.info('Parsing Category : %s' % category_name)
 
-            parsed_urls = set()
+        # Parse page to get urls of other apps
+        urls = self.parse_app_urls(response.text)
 
-            # Parse page to get urls of other apps
-            urls = self.parse_app_urls(response.text)
-
-            # Insert urls on MongoDB
-
-            return
+        for idx, url in enumerate(urls):
+            print '%d - %s' % (idx, url)
 
 
 # Starting Point
