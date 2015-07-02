@@ -2,7 +2,7 @@ from pymongo import mongo_client
 from pymongo import errors
 
 
-class MongoWrapper:
+class MongoDBWrapper:
 
     def __init__(self):
         """
@@ -13,7 +13,7 @@ class MongoWrapper:
         pass
 
     @staticmethod
-    def build_mongo_uri(kwargs):
+    def build_mongo_uri(**kwargs):
         """
         Kwargs:
             - server (str) - server address (Default:localhost)
@@ -163,8 +163,8 @@ if __name__ == '__main__':
     params['auth_database'] = 'MobileAppsData'
     params['write_concern'] = True
 
-    mongo_uri = MongoWrapper.build_mongo_uri(params)
+    mongo_uri = MongoDBWrapper.build_mongo_uri(params)
 
-    mongo_wrapper = MongoWrapper()
+    mongo_wrapper = MongoDBWrapper()
     is_connected = mongo_wrapper.connect(mongo_uri, params['database'],
                                          params['seed_collection'])
