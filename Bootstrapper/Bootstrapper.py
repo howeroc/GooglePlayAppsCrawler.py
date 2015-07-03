@@ -70,7 +70,8 @@ class Bootstrapper:
                                  phase. (default=100)')
 
         parser.add_argument('--debug-https',
-                            action='store_false',
+                            action='store_true',
+                            default=False,
                             help='Turn this flag on to enable Fiddler to \
                                  hook and debug HTTPS Requests')
 
@@ -159,7 +160,7 @@ class Bootstrapper:
                      'ipf': 1,
                      'xhr' : 1}
 
-        return 'start=60&num=60&numChildren=0&ipf=1&xhr=1'
+        return post_data
 
     def fix_url(self, url):
         """ Fix relative Urls by appending the prefix to them """
@@ -209,9 +210,11 @@ class Bootstrapper:
                                ' Chrome/43.0.2357.130 Safari/537.36',
                  'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
 
-        debug_https = self._args['debug_https']
+        # if "Debug Http" is set to true, "verify" must be "false"
+        verify_certificate = not self._args['debug_https']
 
-        response = requests.get(category_url, headers, verify=debug_https)
+        response = requests.get(category_url, headers,
+                                verify=verify_certificate)
 
         self._logger.info('Parsing Category : %s' % category_name)
 
@@ -233,7 +236,7 @@ class Bootstrapper:
             response = requests.post(category_url + '?authuser=0',
                                      data = post_data,
                                      headers=headers,
-                                     verify=debug_https)
+                                     verify=verify_certificate)
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
