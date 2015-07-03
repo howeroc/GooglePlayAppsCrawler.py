@@ -4,6 +4,7 @@ import BootstrappingSeed
 import requests
 import sys
 import errno
+import json
 from lxml import html
 from Shared.MongoWrapper import MongoDBWrapper
 
@@ -26,9 +27,6 @@ class Bootstrapper:
         params['auth_database'] = 'MobileAppsData'
         params['write_concern'] = True
         self._params = params
-
-        # Urls Hashset
-        self._parsed_urls = set()
 
     def get_arguments_parser(self):
         """
@@ -62,8 +60,19 @@ class Bootstrapper:
 
         parser.add_argument('--log-file',
                             type=str,
-                            help='Path of the output log file (default is \
+                            help='Path of the output log file (default=\
                                   console-only logging)')
+
+        parser.add_argument('--max-errors',
+                            type=int,
+                            default=100,
+                            help='Max http errors allowed on Bootstrapping \
+                                 phase. (default=100)')
+
+        parser.add_argument('--debug-https',
+                            action='store_false',
+                            help='Turn this flag on to enable Fiddler to \
+                                 hook and debug HTTPS Requests')
 
         return parser
 
@@ -140,6 +149,18 @@ class Bootstrapper:
         return mongo_wrapper.connect(mongo_uri, kwargs['database'],
                                      kwargs['seed_collection'])
 
+    def assemble_post_data(self, multiplier, base):
+        """ Creates a Postdata body based on the arguments received """
+
+        post_data = {
+                     'start': multiplier*base,
+                     'num': base,
+                     'numChildren': 0,
+                     'ipf': 1,
+                     'xhr' : 1}
+
+        return 'start=60&num=60&numChildren=0&ipf=1&xhr=1'
+
     def fix_url(self, url):
         """ Fix relative Urls by appending the prefix to them """
 
@@ -167,35 +188,7 @@ class Bootstrapper:
         for node in urls:
             if "href" in node.attrib and "details?id=" in node.attrib["href"]:
                 url = node.attrib["href"]
-
-                # Duplicates Check
-                if url not in self._parsed_urls:
-                    self._parsed_urls.add(url)
-                    yield self.fix_url(url)
-
-    def start_bootstrapping(self):
-        """
-        Main Method - Iterates over all categories, keywords,
-                      and misc words, scrapes the urls of all the
-                      search results and store them into mongodb
-        """
-
-        args_parser = self.get_arguments_parser()
-        args = vars(args_parser.parse_args())
-
-        self._logger = self.configure_log(args)
-
-        if not self.configure_mongodb(**self._params):
-            self._logger.fatal('Error configuring MongoDB')
-            sys.exit(errno.ECONNREFUSED)
-
-        # Loads different "seed" terms from the input xml file received
-        bs_seed = BootstrappingSeed.Seed(args['bootstrapping-terms'])
-        bs_seed.initialize_seed_class()
-
-        # Request for each top level category
-        for top_level_category in bs_seed._top_level_categories:
-            self.crawl_category(top_level_category)
+                yield self.fix_url(url)
 
     def crawl_category(self, category):
         """
@@ -207,20 +200,79 @@ class Bootstrapper:
         category_url = category[1]
         category_name = category[0]
 
-        response = requests.get(category_url,
-                                headers={'content-type':
-                                         'text/html; charset=UTF-8',
-                                         'Accept-Language':
-                                         'en-US,en;q=0.6,en;q=0.4,es;q=0.2'})
+        headers={'Host': 'play.google.com',
+                 'Origin': 'https://play.google.com',
+                 'Content-type':
+                 'application/x-www-form-urlencoded;charset=UTF-8',
+                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64)'
+                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
+                               ' Chrome/43.0.2357.130 Safari/537.36',
+                 'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
+
+        debug_https = self._args['debug_https']
+
+        response = requests.get(category_url, headers, verify=debug_https)
 
         self._logger.info('Parsing Category : %s' % category_name)
 
-        # Parse page to get urls of other apps
-        urls = self.parse_app_urls(response.text)
-
         # Adding Urls to MongoDB
-        for url in urls:
+        parsed_urls = set()
+        for url in self.parse_app_urls(response.text):
             self._mongo_wrapper.insert_on_queue(url)
+            parsed_urls.add(url)
+
+        # Paging through results
+        base_skip = 60
+        current_multiplier = 1
+        http_errors = 0
+        is_done_pagging = False
+
+        while not is_done_pagging and http_errors <= self._args['max_errors']:
+            post_data = self.assemble_post_data(current_multiplier, base_skip)
+
+            response = requests.post(category_url + '?authuser=0',
+                                     data = post_data,
+                                     headers=headers,
+                                     verify=debug_https)
+
+            if response.status_code != requests.codes.ok:
+                http_errors+=1
+                self._logger.error('Http Errors : %d' % http_errors)
+            else:
+                for url in self.parse_app_urls(response.text):
+                    if url in parsed_urls:
+                        is_done_pagging = True
+                        self._logger.info('Ended Pagging. Found Duplicated app')
+                        break
+
+                    parsed_urls.add(url)
+                    self._mongo_wrapper.insert_on_queue(url)
+
+            current_multiplier+=1
+
+    def start_bootstrapping(self):
+        """
+        Main Method - Iterates over all categories, keywords,
+                      and misc words, scrapes the urls of all the
+                      search results and store them into mongodb
+        """
+
+        args_parser = self.get_arguments_parser()
+        self._args = vars(args_parser.parse_args())
+
+        self._logger = self.configure_log(self._args)
+
+        if not self.configure_mongodb(**self._params):
+            self._logger.fatal('Error configuring MongoDB')
+            sys.exit(errno.ECONNREFUSED)
+
+        # Loads different "seed" terms from the input xml file received
+        bs_seed = BootstrappingSeed.Seed(self._args['bootstrapping-terms'])
+        bs_seed.initialize_seed_class()
+
+        # Request for each top level category
+        for top_level_category in bs_seed._top_level_categories:
+            self.crawl_category(top_level_category)
 
 # Starting Point
 if __name__ == "__main__":

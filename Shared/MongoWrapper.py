@@ -129,6 +129,14 @@ class MongoDBWrapper:
 
     def insert_on_queue(self, app_url, collection=None):
         queue_record = {'_id': app_url, 'IsBusy':False}
+        query = {'_id': app_url}
+
+        if not collection:
+             if self._collection.find_one(query):
+                 return
+        else:
+            if self._database[collection].find_one(query):
+                return
 
         self._insert(queue_record, collection)
 
@@ -151,7 +159,6 @@ class MongoDBWrapper:
             return self._collection.insert_one(app).acknowledged
 
         return self._database[collection].insert_one(app).acknowledged
-
 
 if __name__ == '__main__':
 
