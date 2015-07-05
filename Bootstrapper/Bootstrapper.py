@@ -316,8 +316,8 @@ class Bootstrapper:
 
         while not is_done_pagging and http_errors <= self._args['max_errors']:
 
-            page_token = page_token_regex.match(response.text)
-            print page_token
+            page_token = page_token_regex.search(response.text)
+            print page_token.group()
 
 
     def start_bootstrapping(self):
