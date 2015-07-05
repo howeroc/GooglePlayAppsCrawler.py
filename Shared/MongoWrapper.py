@@ -160,6 +160,9 @@ class MongoDBWrapper:
 
         return self._database[collection].insert_one(app).acknowledged
 
+    def ensure_index(self, field_name):
+        self._collection.ensure_index(field_name)
+
 if __name__ == '__main__':
 
     print 'Connecting to the database'

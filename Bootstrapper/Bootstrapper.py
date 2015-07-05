@@ -4,7 +4,7 @@ import BootstrappingSeed
 import requests
 import sys
 import errno
-import json
+import re as regex
 from lxml import html
 from Shared.MongoWrapper import MongoDBWrapper
 
@@ -150,7 +150,7 @@ class Bootstrapper:
         return mongo_wrapper.connect(mongo_uri, kwargs['database'],
                                      kwargs['seed_collection'])
 
-    def assemble_post_data(self, multiplier, base):
+    def assemble_category_post_data(self, multiplier, base):
         """ Creates a Postdata body based on the arguments received """
 
         post_data = {
@@ -161,6 +161,13 @@ class Bootstrapper:
                      'xhr' : 1}
 
         return post_data
+
+    def assemble_word_search_post_data(self, mutiplier=0, page_token=None):
+        if not page_token:
+            return 'ipf=1&xhr=1'
+
+    def assemble_post_url(self, word):
+        return 'https://play.google.com/store/search?q={0}&c=apps'.format(word)
 
     def fix_url(self, url):
         """ Fix relative Urls by appending the prefix to them """
@@ -193,13 +200,17 @@ class Bootstrapper:
 
     def crawl_category(self, category):
         """
-        Executes a GET request for the url of the category received
-        and paginates through all the results
-        :return:
+        Executes a GET request for the url of the category received.
+
+        Paginates through all the results found and
+        store the unique urls into the MongoDB seed
+        collection
         """
 
         category_url = category[1]
         category_name = category[0]
+
+        self._logger.info('Scraping links of Category : %s' % category_name)
 
         headers={'Host': 'play.google.com',
                  'Origin': 'https://play.google.com',
@@ -216,8 +227,6 @@ class Bootstrapper:
         response = requests.get(category_url, headers,
                                 verify=verify_certificate)
 
-        self._logger.info('Parsing Category : %s' % category_name)
-
         # Adding Urls to MongoDB
         parsed_urls = set()
         for url in self.parse_app_urls(response.text):
@@ -231,7 +240,8 @@ class Bootstrapper:
         is_done_pagging = False
 
         while not is_done_pagging and http_errors <= self._args['max_errors']:
-            post_data = self.assemble_post_data(current_multiplier, base_skip)
+            post_data = self.assemble_category_post_data(current_multiplier,
+                                                         base_skip)
 
             response = requests.post(category_url + '?authuser=0',
                                      data = post_data,
@@ -253,6 +263,63 @@ class Bootstrapper:
 
             current_multiplier+=1
 
+    def crawl_by_search_word(self, word):
+        """
+        Simulates an app search on the play store, using the
+        word argument as the term to be searched.
+
+        Paginates through all the results found and
+        store the unique urls into the MongoDB seed
+        collection
+        """
+
+        self._logger.info('Scraping links of Word : %s' % word)
+
+        # Compiling regex used for parsing page token
+        page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
+
+        headers={'Host': 'play.google.com',
+                 'Origin': 'https://play.google.com',
+                 'Content-type':
+                 'application/x-www-form-urlencoded;charset=UTF-8',
+                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64)'
+                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
+                               ' Chrome/43.0.2357.130 Safari/537.36',
+                 'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
+
+        # if "Debug Http" is set to true, "verify" must be "false"
+        verify_certificate = not self._args['debug_https']
+
+        post_url = self.assemble_post_url(word)
+        post_data = self.assemble_word_search_post_data()
+
+        response = requests.post(post_url,
+                                data=post_data,
+                                headers=headers,
+                                verify=verify_certificate)
+
+        if response.status_code != requests.codes.ok:
+            self._logger.critical('Error [%d] on Response for search term : %s'
+                                  % (response.status_code, word))
+            return
+
+        parsed_urls = set()
+        for url in self.parse_app_urls(response.text):
+            #self._mongo_wrapper.insert_on_queue(url)
+            parsed_urls.add(url)
+
+        # Paging through results
+        base_skip = 60
+        current_multiplier = 1
+        http_errors = 0
+        is_done_pagging = False
+
+        while not is_done_pagging and http_errors <= self._args['max_errors']:
+
+            page_token = page_token_regex.match(response.text)
+            print page_token
+
+
     def start_bootstrapping(self):
         """
         Main Method - Iterates over all categories, keywords,
@@ -273,9 +340,17 @@ class Bootstrapper:
         bs_seed = BootstrappingSeed.Seed(self._args['bootstrapping-terms'])
         bs_seed.initialize_seed_class()
 
+        # Creating MongoDB Index on Seed Collection
+        self._mongo_wrapper.ensure_index('Url')
+
         # Request for each top level category
-        for top_level_category in bs_seed._top_level_categories:
-            self.crawl_category(top_level_category)
+        #for top_level_category in bs_seed._top_level_categories:
+            #self.crawl_category(top_level_category)
+
+        # Scraping Category Names
+        for category in bs_seed._app_categories:
+            self.crawl_by_search_word(category)
+
 
 # Starting Point
 if __name__ == "__main__":
