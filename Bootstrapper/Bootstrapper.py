@@ -5,9 +5,9 @@ import requests
 import sys
 import errno
 import re as regex
+import os
 from lxml import html
 from Shared.MongoWrapper import MongoDBWrapper
-
 
 class Bootstrapper:
 
@@ -162,12 +162,36 @@ class Bootstrapper:
 
         return post_data
 
-    def assemble_word_search_post_data(self, mutiplier=0, page_token=None):
+    def assemble_word_search_post_data(self, page_token=None):
+        """
+        Assembles the Postdata for the 'Search' request
+        based on the Token received. The first request has a fix postdata
+        while the next ones must have different page_tokens, parsed
+        out of the html page
+
+        Positional Argument:
+        - page_token : Token extracted from the HTML response
+        """
         if not page_token:
             return 'ipf=1&xhr=1'
 
+        return 'start=0&num=0&numChildren=0&pagTok={0}&ipf=1&xhr=1'\
+               .format(page_token)
+
     def assemble_post_url(self, word):
+        """ Format Search Url based on the word received """
         return 'https://play.google.com/store/search?q={0}&c=apps'.format(word)
+
+    def normalize_page_token(self, page_token):
+        """
+        Fixes the parsed page token in order to reach the format
+        needed for the request to work
+        """
+        page_token_str = page_token.replace(':S:', '%3AS%3A')
+        page_token_str = page_token_str.replace('\\42', '')
+        page_token_str = page_token_str.replace('\\u003d', '')
+        page_token_str = page_token_str.replace(',', '')
+        return page_token_str
 
     def fix_url(self, url):
         """ Fix relative Urls by appending the prefix to them """
@@ -305,19 +329,37 @@ class Bootstrapper:
 
         parsed_urls = set()
         for url in self.parse_app_urls(response.text):
-            #self._mongo_wrapper.insert_on_queue(url)
+            self._mongo_wrapper.insert_on_queue(url)
             parsed_urls.add(url)
 
         # Paging through results
-        base_skip = 60
-        current_multiplier = 1
         http_errors = 0
-        is_done_pagging = False
 
-        while not is_done_pagging and http_errors <= self._args['max_errors']:
+        while http_errors <= self._args['max_errors']:
 
             page_token = page_token_regex.search(response.text)
-            print page_token.group()
+
+            if not page_token:
+                break
+
+            page_token = self.normalize_page_token(page_token.group())
+            post_data = self.assemble_word_search_post_data(page_token)
+
+            response = requests.post(post_url,
+                                     data=post_data,
+                                     headers=headers,
+                                     verify=verify_certificate)
+
+            if response.status_code != requests.codes.ok:
+                self._logger.critical('Error [%d] on Response for search \
+                                       term : %s'
+                                  % (response.status_code, word))
+                http_errors += 1
+                continue
+
+            for url in self.parse_app_urls(response.text):
+                self._mongo_wrapper.insert_on_queue(url)
+                parsed_urls.add(url)
 
 
     def start_bootstrapping(self):
@@ -344,8 +386,8 @@ class Bootstrapper:
         self._mongo_wrapper.ensure_index('Url')
 
         # Request for each top level category
-        #for top_level_category in bs_seed._top_level_categories:
-            #self.crawl_category(top_level_category)
+        for top_level_category in bs_seed._top_level_categories:
+            self.crawl_category(top_level_category)
 
         # Scraping Category Names
         for category in bs_seed._app_categories:
