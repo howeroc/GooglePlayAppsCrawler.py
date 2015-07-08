@@ -7,7 +7,7 @@ import errno
 import re as regex
 import os
 from lxml import html
-from Shared.MongoWrapper import MongoDBWrapper
+from shared.MongoWrapper import MongoDBWrapper
 
 class Bootstrapper:
 
