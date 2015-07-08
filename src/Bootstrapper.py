@@ -279,7 +279,6 @@ class Bootstrapper:
                 for url in self.parse_app_urls(response.text):
                     if url in parsed_urls:
                         is_done_pagging = True
-                        self._logger.info('Ended Pagging. Found Duplicated app')
                         break
 
                     parsed_urls.add(url)
@@ -393,8 +392,21 @@ class Bootstrapper:
         for category in bs_seed._app_categories:
             self.crawl_by_search_word(category)
 
+        # Scraping Characters (A-Z)
+        for category in bs_seed._characters:
+            self.crawl_by_search_word(category)
+            
+        # Scraping Misc Words
+        for category in bs_seed._misc_words:
+            self.crawl_by_search_word(category)
+            
+        # Scraping Country Names
+        for category in bs_seed._country_names:
+            self.crawl_by_search_word(category)
 
 # Starting Point
 if __name__ == "__main__":
+
+    requests.packages.urllib3.disable_warnings()
     bootstrapper = Bootstrapper()
     bootstrapper.start_bootstrapping()
