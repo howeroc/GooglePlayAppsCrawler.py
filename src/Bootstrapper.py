@@ -2,7 +2,6 @@ import logging
 import argparse
 import BootstrappingSeed
 import requests
-from requests.auth import HTTPProxyAuth
 import sys
 import errno
 import re as regex
@@ -153,13 +152,16 @@ class Bootstrapper:
         returns the list of proxies loaded
         in it's proper 'request-form'
         """
-        proxy_format = 'https://{0}:{1}'
+        proxy_format = 'https://{0}:{1}@{2}:{3}/'
         proxies = []
 
         proxies_reader = args['proxies_path']
         for line in proxies_reader:
-            server, port, _, _ = line.split(':')
-            proxies.append(proxy_format.format(server, port))
+            server, port, username, password = line.split(':')
+            proxies.append(proxy_format.format(username,
+                                               password.replace('\n', ''),
+                                               server,
+                                               port))
 
         return proxies
 
@@ -295,11 +297,12 @@ class Bootstrapper:
 
             response = requests.get(category_url,
                                     headers,
-                                    verify=self._verify_certificate)
+                                    verify=self._verify_certificate,
+                                    proxies=self.get_proxy())
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
-                self.sleep(http_errors)
+                #self.sleep(http_errors)
                 self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, category_name))
             else:
@@ -321,11 +324,12 @@ class Bootstrapper:
             response = requests.post(category_url + '?authuser=0',
                                      data = post_data,
                                      headers=headers,
-                                     verify=self._verify_certificate)
+                                     verify=self._verify_certificate,
+                                     proxies=self.get_proxy())
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
-                self.sleep(http_errors)
+                #self.sleep(http_errors)
                 self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, category_name))
             else:
@@ -335,7 +339,7 @@ class Bootstrapper:
 
                     parsed_urls.add(url)
                     self._mongo_wrapper.insert_on_queue(url)
-                    self.sleep()
+                    #self.sleep()
 
             current_multiplier+=1
 
@@ -373,11 +377,12 @@ class Bootstrapper:
             response = requests.post(post_url,
                                     data=post_data,
                                     headers=headers,
-                                    verify=self._verify_certificate)
+                                    verify=self._verify_certificate,
+                                    proxies=self.get_proxy())
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
-                self.sleep(http_errors)
+                #self.sleep(http_errors)
                 self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, word))
             else:
@@ -402,11 +407,12 @@ class Bootstrapper:
             response = requests.post(post_url,
                                      data=post_data,
                                      headers=headers,
-                                     verify=self._verify_certificate)
+                                     verify=self._verify_certificate,
+                                     proxies=self.get_proxy())
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
-                self.sleep(http_errors)
+                #self.sleep(http_errors)
                 self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, word))
             else:
@@ -416,7 +422,7 @@ class Bootstrapper:
 
                     self._mongo_wrapper.insert_on_queue(url)
                     parsed_urls.add(url)
-                    self.sleep()
+                    #self.sleep()
 
     def start_bootstrapping(self):
         """
@@ -441,6 +447,7 @@ class Bootstrapper:
         # Checking for proxies
         if self._args['proxies_path']:
             self._proxies = self.load_proxies(self._args)
+            print 'Loaded Proxies : %d' % len(self._proxies)
         else:
             self._proxies = None
 
@@ -454,21 +461,10 @@ class Bootstrapper:
         for top_level_category in bs_seed._top_level_categories:
             self.crawl_category(top_level_category)
 
-        # Scraping Category Names
-        for category in bs_seed._app_categories:
-            self.crawl_by_search_word(category)
+        # Simulating searches for specific words
+        for word in bs_seed.get_words():
+            self.crawl_by_search_word(word)
 
-        # Scraping Characters (A-Z)
-        for category in bs_seed._characters:
-            self.crawl_by_search_word(category)
-            
-        # Scraping Misc Words
-        for category in bs_seed._misc_words:
-            self.crawl_by_search_word(category)
-            
-        # Scraping Country Names
-        for category in bs_seed._country_names:
-            self.crawl_by_search_word(category)
 
 # Starting Point
 if __name__ == "__main__":

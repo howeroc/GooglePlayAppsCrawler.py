@@ -97,3 +97,12 @@ class Seed:
 
         for category in self._xml_map.getroot().iter('country'):
             self._country_names.append(category.text)
+
+    def get_words(self):
+        words = self._characters
+        words.extend(self._app_categories)
+        words.extend(self._misc_words)
+        words.extend(self._country_names)
+
+        for word in words:
+            yield  word
