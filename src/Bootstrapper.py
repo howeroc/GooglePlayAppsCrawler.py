@@ -2,10 +2,12 @@ import logging
 import argparse
 import BootstrappingSeed
 import requests
+from requests.auth import HTTPProxyAuth
 import sys
 import errno
 import re as regex
-import os
+import random
+import time
 from lxml import html
 from shared.MongoWrapper import MongoDBWrapper
 
@@ -75,6 +77,12 @@ class Bootstrapper:
                             help='Turn this flag on to enable Fiddler to \
                                  hook and debug HTTPS Requests')
 
+        parser.add_argument('--proxies-path',
+                            type=file,
+                            default=None,
+                            help='Path to the file of proxies \
+                            (read the documentation)')
+
         return parser
 
     def get_log_level_from_string(self, logLevel):
@@ -138,6 +146,42 @@ class Bootstrapper:
             logger.addHandler(file_handler)
 
         return logger
+
+    def load_proxies(self, args):
+        """
+        Loads HTTP Proxies out of a file and
+        returns the list of proxies loaded
+        in it's proper 'request-form'
+        """
+        proxy_format = 'https://{0}:{1}'
+        proxies = []
+
+        proxies_reader = args['proxies_path']
+        for line in proxies_reader:
+            server, port, _, _ = line.split(':')
+            proxies.append(proxy_format.format(server, port))
+
+        return proxies
+
+    def get_proxy(self):
+        """
+        Returns a dictionary with a random loaded proxy
+        """
+        if self._proxies:
+            return {'https': random.choice(self._proxies)}
+        return None
+
+    def sleep(self, errors=0):
+        """
+        Single point of "Process Sleep"
+        """
+        if errors != 0:
+            time.sleep(random.randint(2,3))
+        elif errors >= 8:
+            time.sleep(60 * 20) # 20 Minutes Nap
+        else:
+            #Calculating next wait time ( 2 ^ errors, seconds)
+            time.sleep(2 ** errors)
 
     def configure_mongodb(self, **kwargs):
         """
@@ -235,6 +279,7 @@ class Bootstrapper:
         category_name = category[0]
 
         self._logger.info('Scraping links of Category : %s' % category_name)
+        parsed_urls = set()
 
         headers={'Host': 'play.google.com',
                  'Origin': 'https://play.google.com',
@@ -245,44 +290,52 @@ class Bootstrapper:
                                ' Chrome/43.0.2357.130 Safari/537.36',
                  'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
 
-        # if "Debug Http" is set to true, "verify" must be "false"
-        verify_certificate = not self._args['debug_https']
+        http_errors = 0
+        while http_errors <= self._args['max_errors']:
 
-        response = requests.get(category_url, headers,
-                                verify=verify_certificate)
+            response = requests.get(category_url,
+                                    headers,
+                                    verify=self._verify_certificate)
 
-        # Adding Urls to MongoDB
-        parsed_urls = set()
-        for url in self.parse_app_urls(response.text):
-            self._mongo_wrapper.insert_on_queue(url)
-            parsed_urls.add(url)
+            if response.status_code != requests.codes.ok:
+                http_errors+=1
+                self.sleep(http_errors)
+                self._logger.critical('Error [%d] on Response for : %s'
+                                      % (response.status_code, category_name))
+            else:
+                for url in self.parse_app_urls(response.text):
+                    self._mongo_wrapper.insert_on_queue(url)
+                    parsed_urls.add(url)
+
+                break # Response worked
 
         # Paging through results
         base_skip = 60
         current_multiplier = 1
-        http_errors = 0
-        is_done_pagging = False
 
-        while not is_done_pagging and http_errors <= self._args['max_errors']:
+        while http_errors <= self._args['max_errors']:
+
             post_data = self.assemble_category_post_data(current_multiplier,
                                                          base_skip)
 
             response = requests.post(category_url + '?authuser=0',
                                      data = post_data,
                                      headers=headers,
-                                     verify=verify_certificate)
+                                     verify=self._verify_certificate)
 
             if response.status_code != requests.codes.ok:
                 http_errors+=1
-                self._logger.error('Http Errors : %d' % http_errors)
+                self.sleep(http_errors)
+                self._logger.critical('Error [%d] on Response for : %s'
+                                      % (response.status_code, category_name))
             else:
                 for url in self.parse_app_urls(response.text):
-                    if url in parsed_urls:
-                        is_done_pagging = True
-                        break
+                    if url in parsed_urls: # Duplicate Check, Means End of Loop
+                        return
 
                     parsed_urls.add(url)
                     self._mongo_wrapper.insert_on_queue(url)
+                    self.sleep()
 
             current_multiplier+=1
 
@@ -297,6 +350,7 @@ class Bootstrapper:
         """
 
         self._logger.info('Scraping links of Word : %s' % word)
+        parsed_urls = set()
 
         # Compiling regex used for parsing page token
         page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
@@ -310,35 +364,36 @@ class Bootstrapper:
                                ' Chrome/43.0.2357.130 Safari/537.36',
                  'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
 
-        # if "Debug Http" is set to true, "verify" must be "false"
-        verify_certificate = not self._args['debug_https']
-
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
 
-        response = requests.post(post_url,
-                                data=post_data,
-                                headers=headers,
-                                verify=verify_certificate)
-
-        if response.status_code != requests.codes.ok:
-            self._logger.critical('Error [%d] on Response for search term : %s'
-                                  % (response.status_code, word))
-            return
-
-        parsed_urls = set()
-        for url in self.parse_app_urls(response.text):
-            self._mongo_wrapper.insert_on_queue(url)
-            parsed_urls.add(url)
-
-        # Paging through results
         http_errors = 0
+        while http_errors <= self._args['max_errors']:
 
+            response = requests.post(post_url,
+                                    data=post_data,
+                                    headers=headers,
+                                    verify=self._verify_certificate)
+
+            if response.status_code != requests.codes.ok:
+                http_errors+=1
+                self.sleep(http_errors)
+                self._logger.critical('Error [%d] on Response for : %s'
+                                      % (response.status_code, word))
+            else:
+                for url in self.parse_app_urls(response.text):
+                    self._mongo_wrapper.insert_on_queue(url)
+                    parsed_urls.add(url)
+
+                break # Response worked
+
+        # Paging Through Results
         while http_errors <= self._args['max_errors']:
 
             page_token = page_token_regex.search(response.text)
 
             if not page_token:
+                self._logger.fatal("Couldn't find page token")
                 break
 
             page_token = self.normalize_page_token(page_token.group())
@@ -347,19 +402,21 @@ class Bootstrapper:
             response = requests.post(post_url,
                                      data=post_data,
                                      headers=headers,
-                                     verify=verify_certificate)
+                                     verify=self._verify_certificate)
 
             if response.status_code != requests.codes.ok:
-                self._logger.critical('Error [%d] on Response for search \
-                                       term : %s'
-                                  % (response.status_code, word))
-                http_errors += 1
-                continue
+                http_errors+=1
+                self.sleep(http_errors)
+                self._logger.critical('Error [%d] on Response for : %s'
+                                      % (response.status_code, word))
+            else:
+                for url in self.parse_app_urls(response.text):
+                    if url in parsed_urls:
+                        return
 
-            for url in self.parse_app_urls(response.text):
-                self._mongo_wrapper.insert_on_queue(url)
-                parsed_urls.add(url)
-
+                    self._mongo_wrapper.insert_on_queue(url)
+                    parsed_urls.add(url)
+                    self.sleep()
 
     def start_bootstrapping(self):
         """
@@ -380,6 +437,15 @@ class Bootstrapper:
         # Loads different "seed" terms from the input xml file received
         bs_seed = BootstrappingSeed.Seed(self._args['bootstrapping-terms'])
         bs_seed.initialize_seed_class()
+
+        # Checking for proxies
+        if self._args['proxies_path']:
+            self._proxies = self.load_proxies(self._args)
+        else:
+            self._proxies = None
+
+        # if "Debug Http" is set to true, "verify" must be "false"
+        self._verify_certificate = not self._args['debug_https']
 
         # Creating MongoDB Index on Seed Collection
         self._mongo_wrapper.ensure_index('Url')
