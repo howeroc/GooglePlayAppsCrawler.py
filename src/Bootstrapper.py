@@ -41,8 +41,8 @@ class Bootstrapper:
 
         parser.add_argument('bootstrapping-terms',
                             type=file,
-                            help='Path to the xml containing the bootstrapping \
-                                  terms that should be loaded')
+                            help='Path to the xml containing the bootstrapping\
+                                   terms that should be loaded')
 
         # All arguments start with "-", hence, they are all handled as optional
         parser.add_argument('--console-log-verbosity',
@@ -295,22 +295,26 @@ class Bootstrapper:
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
-            response = requests.get(category_url,
-                                    headers,
-                                    verify=self._verify_certificate,
-                                    proxies=self.get_proxy())
+            try:
+                response = requests.get(category_url,
+                                        headers,
+                                        verify=self._verify_certificate,
+                                        proxies=self.get_proxy())
 
-            if response.status_code != requests.codes.ok:
-                http_errors+=1
-                #self.sleep(http_errors)
-                self._logger.critical('Error [%d] on Response for : %s'
-                                      % (response.status_code, category_name))
-            else:
-                for url in self.parse_app_urls(response.text):
-                    self._mongo_wrapper.insert_on_queue(url)
-                    parsed_urls.add(url)
+                if response.status_code != requests.codes.ok:
+                    http_errors+=1
+                    #self.sleep(http_errors)
+                    self._logger.critical('Error [%d] on Response for : %s'
+                                       % (response.status_code, category_name))
+                else:
+                    for url in self.parse_app_urls(response.text):
+                        self._mongo_wrapper.insert_on_queue(url)
+                        parsed_urls.add(url)
 
-                break # Response worked
+                    break # Response worked
+
+            except requests.exceptions.SSLError as error:
+                print 'SSL_Error : ' + error.errno
 
         # Paging through results
         base_skip = 60
@@ -320,26 +324,29 @@ class Bootstrapper:
 
             post_data = self.assemble_category_post_data(current_multiplier,
                                                          base_skip)
+            try:
+                response = requests.post(category_url + '?authuser=0',
+                                         data = post_data,
+                                         headers=headers,
+                                         verify=self._verify_certificate,
+                                         proxies=self.get_proxy())
 
-            response = requests.post(category_url + '?authuser=0',
-                                     data = post_data,
-                                     headers=headers,
-                                     verify=self._verify_certificate,
-                                     proxies=self.get_proxy())
-
-            if response.status_code != requests.codes.ok:
-                http_errors+=1
-                #self.sleep(http_errors)
-                self._logger.critical('Error [%d] on Response for : %s'
+                if response.status_code != requests.codes.ok:
+                    http_errors+=1
+                    #self.sleep(http_errors)
+                    self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, category_name))
-            else:
-                for url in self.parse_app_urls(response.text):
-                    if url in parsed_urls: # Duplicate Check, Means End of Loop
-                        return
+                else:
+                    for url in self.parse_app_urls(response.text):
+                        if url in parsed_urls:
+                            return
 
-                    parsed_urls.add(url)
-                    self._mongo_wrapper.insert_on_queue(url)
-                    #self.sleep()
+                        parsed_urls.add(url)
+                        self._mongo_wrapper.insert_on_queue(url)
+                        #self.sleep()
+
+            except requests.exceptions.SSLError as error:
+                print 'SSL_Error : ' + error.errno
 
             current_multiplier+=1
 
@@ -374,23 +381,27 @@ class Bootstrapper:
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
-            response = requests.post(post_url,
-                                    data=post_data,
-                                    headers=headers,
-                                    verify=self._verify_certificate,
-                                    proxies=self.get_proxy())
+            try:
+                response = requests.post(post_url,
+                                        data=post_data,
+                                        headers=headers,
+                                        verify=self._verify_certificate,
+                                        proxies=self.get_proxy())
 
-            if response.status_code != requests.codes.ok:
-                http_errors+=1
-                #self.sleep(http_errors)
-                self._logger.critical('Error [%d] on Response for : %s'
-                                      % (response.status_code, word))
-            else:
-                for url in self.parse_app_urls(response.text):
-                    self._mongo_wrapper.insert_on_queue(url)
-                    parsed_urls.add(url)
+                if response.status_code != requests.codes.ok:
+                    http_errors+=1
+                    #self.sleep(http_errors)
+                    self._logger.critical('Error [%d] on Response for : %s'
+                                          % (response.status_code, word))
+                else:
+                    for url in self.parse_app_urls(response.text):
+                        self._mongo_wrapper.insert_on_queue(url)
+                        parsed_urls.add(url)
 
-                break # Response worked
+                    break # Response worked
+
+            except requests.exceptions.SSLError as error:
+                print 'SSL_Error : ' + error.errno
 
         # Paging Through Results
         while http_errors <= self._args['max_errors']:
@@ -404,25 +415,29 @@ class Bootstrapper:
             page_token = self.normalize_page_token(page_token.group())
             post_data = self.assemble_word_search_post_data(page_token)
 
-            response = requests.post(post_url,
-                                     data=post_data,
-                                     headers=headers,
-                                     verify=self._verify_certificate,
-                                     proxies=self.get_proxy())
+            try:
+                response = requests.post(post_url,
+                                         data=post_data,
+                                         headers=headers,
+                                         verify=self._verify_certificate,
+                                         proxies=self.get_proxy())
 
-            if response.status_code != requests.codes.ok:
-                http_errors+=1
-                #self.sleep(http_errors)
-                self._logger.critical('Error [%d] on Response for : %s'
-                                      % (response.status_code, word))
-            else:
-                for url in self.parse_app_urls(response.text):
-                    if url in parsed_urls:
-                        return
+                if response.status_code != requests.codes.ok:
+                    http_errors+=1
+                    #self.sleep(http_errors)
+                    self._logger.critical('Error [%d] on Response for : %s'
+                                          % (response.status_code, word))
+                else:
+                    for url in self.parse_app_urls(response.text):
+                        if url in parsed_urls:
+                            return
 
-                    self._mongo_wrapper.insert_on_queue(url)
-                    parsed_urls.add(url)
-                    #self.sleep()
+                        self._mongo_wrapper.insert_on_queue(url)
+                        parsed_urls.add(url)
+                        #self.sleep()
+
+            except requests.exceptions.SSLError as error:
+                print 'SSL_Error : ' + error.errno
 
     def start_bootstrapping(self):
         """
