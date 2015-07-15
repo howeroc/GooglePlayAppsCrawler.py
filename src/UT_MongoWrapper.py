@@ -8,6 +8,49 @@ class MongoWrapperTests(unittest.TestCase):
     _test_app_url = 'unit_test_url'
 
 
+    def test_build_uri_success(self):
+        params = {}
+        params['server'] = 'mobiledata.bigdatacorp.com.br'
+        params['port'] = '21766'
+        params['database'] = 'MobileAppsData'
+        params['username'] = 'GitHubCrawlerUser'
+        params['password'] = 'g22LrJvULU5B'
+        params['seed_collection'] = 'Python_test'
+        params['auth_database'] = 'MobileAppsData'
+        params['write_concern'] = True
+
+        mongo_uri = MongoDBWrapper.build_mongo_uri(**params)
+
+        self.assertTrue(mongo_uri == "mongodb://"\
+        "GitHubCrawlerUser:g22LrJvULU5B@mobiledata.bigdatacorp.com.br:21766/"\
+        "?authSource=MobileAppsData&w=1&"\
+        "readPreference=primaryPreferred&"\
+        "connectTimeoutMS=16000&"\
+        "socketTimeoutMS=16000" , 'URI incorrectly build.')
+
+
+    def test_build_uri_fail(self):
+        params = {}
+        params['server'] = 'mobedata.bigdatacorp.com.br' # error here
+        params['port'] = '21766'
+        params['database'] = 'MobileAppsData'
+        params['username'] = 'GitHubCrawlerUser'
+        params['password'] = 'g22LrJvULU5B'
+        params['seed_collection'] = 'Python_test'
+        params['auth_database'] = 'MobileAppsData'
+        params['write_concern'] = True
+
+        mongo_uri = MongoDBWrapper.build_mongo_uri(**params)
+
+        self.assertFalse(mongo_uri == "mongodb://"\
+        "GitHubCrawlerUser:g22LrJvULU5B@mobiledata.bigdatacorp.com.br:21766/"\
+        "?authSource=MobileAppsData&w=1&"\
+        "readPreference=primaryPreferred&"\
+        "connectTimeoutMS=16000&"\
+        "socketTimeoutMS=16000" , 'URI should be incorrectly build,'\
+                                    'but it was not.')
+
+
     def test_connection_success(self):
         params = {}
         params['server'] = 'mobiledata.bigdatacorp.com.br'
@@ -26,6 +69,7 @@ class MongoWrapperTests(unittest.TestCase):
                                              params['seed_collection'])
 
         self.assertTrue(is_connected, 'Failed to connect.')
+
 
     def test_connection_fail(self):
         params = {}
@@ -48,7 +92,6 @@ class MongoWrapperTests(unittest.TestCase):
 
         self.assertFalse(is_connected,
                          'Connection success when it should not be ok.')
-
 
 
     def test_insertion_success(self):
@@ -82,7 +125,6 @@ class MongoWrapperTests(unittest.TestCase):
 
         else:
             self.fail('Connection problem, verify connection before insert.')
-
 
 
 if __name__ == '__main__':
