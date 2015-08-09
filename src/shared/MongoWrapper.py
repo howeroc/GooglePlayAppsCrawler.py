@@ -1,6 +1,6 @@
 from pymongo import mongo_client
 from pymongo import errors
-
+from pymongo import ReturnDocument
 
 class MongoDBWrapper:
 
@@ -128,6 +128,17 @@ class MongoDBWrapper:
         return self._collection.find_one(query) != None
 
     def insert_on_queue(self, app_url, collection=None):
+        """
+        Inserts an app into the 'seed' collection
+
+        Positional Arguments:
+        - app_url (str) - Full url of the app to be added
+
+        Optional Arguments:
+        - collection (str) - Name of the collection to be searched
+                             (Default: None)
+        """
+
         queue_record = {'_id': app_url, 'IsBusy':False}
         query = {'_id': app_url}
 
@@ -161,7 +172,20 @@ class MongoDBWrapper:
         return self._database[collection].insert_one(app).acknowledged
 
     def ensure_index(self, field_name):
+        """
+        Index creation method
+        """
         self._collection.ensure_index(field_name)
+
+    def find_and_modify(self):
+        """
+        Finds one app and atomically modifies it's
+        'IsBusy' attribute to true
+        """
+        query = {'IsBusy': False}
+        update = {'$set': {'IsBusy': True}}
+
+        return self._collection.find_one_and_update(query, update)
 
 if __name__ == '__main__':
 

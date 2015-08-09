@@ -1,14 +1,9 @@
-import logging
 import argparse
-import BootstrappingSeed
 import requests
 import sys
 import errno
-import re as regex
-import random
-import time
 from lxml import html
-from shared.MongoWrapper import MongoDBWrapper
+from shared.Utils import Utils
 
 class Worker:
 
@@ -25,6 +20,7 @@ class Worker:
         params['username'] = 'GitHubCrawlerUser'
         params['password'] = 'g22LrJvULU5B'
         params['seed_collection'] = 'PlayStore_QueuedApps_2015_05_PY'
+        params['apps_collection'] = 'PlayStore_2015_08_PY'
         params['auth_database'] = 'MobileAppsData'
         params['write_concern'] = True
         self._params = params
@@ -80,7 +76,40 @@ class Worker:
         return parser
 
     def scrape_apps(self):
-        pass
+        """
+        Main method of the 'Worker' layer of this project.
+
+        This method starts the distributed working phase which will
+        consume urls from the seed database and scrape apps data out
+        of the html pages, storing the result into the
+        apps_data collection on MongoDB
+        """
+
+        # Arguments Parsing
+        args_parser = self.get_arguments_parser()
+        self._args = vars(args_parser.parse_args())
+
+        # Log Handler Configuring
+        self._logger = Utils.configure_log(self._args)
+
+        # MongoDB Configuring
+        if not Utils.configure_mongodb(self,**self._params):
+            self._logger.fatal('Error configuring MongoDB')
+            sys.exit(errno.ECONNREFUSED)
+
+        # Making sure indexes exist
+        self._mongo_wrapper.ensure_index('IsBusy');
+
+        # Loop only breaks when there are no more apps to be processed
+        while True:
+
+            # Finds an app to be processed and toggles it's state to 'Busy'
+            seed_record = self._mongo_wrapper.find_and_modify()
+
+            if not seed_record:
+                break
+
+            
 
 if __name__ == '__main__':
     requests.packages.urllib3.disable_warnings()

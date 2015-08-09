@@ -358,9 +358,6 @@ class Bootstrapper:
         # if "Debug Http" is set to true, "verify" must be "false"
         self._verify_certificate = not self._args['debug_https']
 
-        # Creating MongoDB Index on Seed Collection
-        self._mongo_wrapper.ensure_index('Url')
-
         # Request for each top level category
         for top_level_category in bs_seed._top_level_categories:
             self.crawl_category(top_level_category)
