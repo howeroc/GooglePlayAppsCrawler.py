@@ -119,7 +119,7 @@ class MongoDBWrapper:
         returns True if the app was found, false otherwise
         """
 
-        query = {'Url': app_url}
+        query = {'_id': app_url}
 
         # Checking for the need to use the parameter collection
         if collection is not None:
@@ -171,11 +171,14 @@ class MongoDBWrapper:
 
         return self._database[collection].insert_one(app).acknowledged
 
-    def ensure_index(self, field_name):
+    def ensure_index(self, field_name, collection=None):
         """
         Index creation method
         """
-        self._collection.ensure_index(field_name)
+        if collection is None:
+            self._collection.ensure_index(field_name)
+        else:
+            self._database[collection].ensure_index(field_name)
 
     def find_and_modify(self):
         """
@@ -186,6 +189,28 @@ class MongoDBWrapper:
         update = {'$set': {'IsBusy': True}}
 
         return self._collection.find_one_and_update(query, update)
+
+    def remove_app_from_queue(self, app, collection=None):
+        """
+        Removes an app from the specified collection,
+        using the 'url' as the key
+
+        Positional Arguments
+        - app (Any) - Record to be deleted
+
+        Optional Arguments
+        - collection (str) - Name of the collection that the record should be
+        removed from. (Default: None)
+
+        returns True if the operation worked, False otherwise
+        """
+
+        filter = {'_id', app['_id']}
+
+        if collection is None:
+            return self._collection.delete_one(filter).acknowledged
+
+        return self._database[collection].delete_one(filter).acknowledged
 
 if __name__ == '__main__':
 

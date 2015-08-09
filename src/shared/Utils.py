@@ -128,3 +128,13 @@ class Utils:
         else:
             #Calculating next wait time ( 2 ^ errors, seconds)
             time.sleep(2 ** errors)
+
+class HTTPUtils:
+    headers={'Host': 'play.google.com',
+                 'Origin': 'https://play.google.com',
+                 'Content-type':
+                 'application/x-www-form-urlencoded;charset=UTF-8',
+                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64)'
+                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
+                               ' Chrome/43.0.2357.130 Safari/537.36',
+                 'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}

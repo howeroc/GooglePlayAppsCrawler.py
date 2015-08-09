@@ -99,6 +99,7 @@ class Worker:
 
         # Making sure indexes exist
         self._mongo_wrapper.ensure_index('IsBusy');
+        self._mongo_wrapper.ensure_index('_id', self._params['apps_collection'])
 
         # Loop only breaks when there are no more apps to be processed
         while True:
@@ -109,7 +110,27 @@ class Worker:
             if not seed_record:
                 break
 
-            
+            try:
+                url = seed_record['_id']
+
+                # Do we need to normalize the url ?
+                if 'http://' not in url and 'https://' not in url:
+                    url = 'https://play.google.com' + url
+
+                # Is this app processed already ?
+                if self._mongo_wrapper.app_processed(url, self._params['apps_collection']):
+
+                    self._logger.info('Duplicated App : %s. Skipped' % url)
+                    self._mongo_wrapper.remove_app_from_queue(seed_record)
+                    continue
+
+
+
+
+            except Exception as exception:
+                self._logger.error(exception)
+
+
 
 if __name__ == '__main__':
     requests.packages.urllib3.disable_warnings()

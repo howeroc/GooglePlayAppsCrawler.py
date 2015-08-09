@@ -7,6 +7,7 @@ import errno
 import re as regex
 from lxml import html
 from shared.Utils import Utils
+from shared.Utils import HTTPUtils
 
 class Bootstrapper:
 
@@ -169,21 +170,12 @@ class Bootstrapper:
         self._logger.info('Scraping links of Category : %s' % category_name)
         parsed_urls = set()
 
-        headers={'Host': 'play.google.com',
-                 'Origin': 'https://play.google.com',
-                 'Content-type':
-                 'application/x-www-form-urlencoded;charset=UTF-8',
-                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64)'
-                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
-                               ' Chrome/43.0.2357.130 Safari/537.36',
-                 'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
-
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
             try:
                 response = requests.get(category_url,
-                                        headers,
+                                        HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         proxies=Utils.get_proxy())
 
@@ -213,7 +205,7 @@ class Bootstrapper:
             try:
                 response = requests.post(category_url + '?authuser=0',
                                          data = post_data,
-                                         headers=headers,
+                                         headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          proxies=Utils.get_proxy())
 
@@ -252,15 +244,6 @@ class Bootstrapper:
         # Compiling regex used for parsing page token
         page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
 
-        headers={'Host': 'play.google.com',
-                 'Origin': 'https://play.google.com',
-                 'Content-type':
-                 'application/x-www-form-urlencoded;charset=UTF-8',
-                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64)'
-                               ' AppleWebKit/537.36 (KHTML, like Gecko)'
-                               ' Chrome/43.0.2357.130 Safari/537.36',
-                 'Accept-Language':'en-US,en;q=0.6,en;q=0.4,es;q=0.2'}
-
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
 
@@ -270,7 +253,7 @@ class Bootstrapper:
             try:
                 response = requests.post(post_url,
                                         data=post_data,
-                                        headers=headers,
+                                        headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         proxies=Utils.get_proxy())
 
@@ -304,7 +287,7 @@ class Bootstrapper:
             try:
                 response = requests.post(post_url,
                                          data=post_data,
-                                         headers=headers,
+                                         headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          proxies=Utils.get_proxy())
 
