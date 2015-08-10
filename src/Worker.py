@@ -4,6 +4,7 @@ import sys
 import errno
 from lxml import html
 from shared.Utils import Utils
+from shared.Utils import HTTPUtils
 
 class Worker:
 
@@ -101,6 +102,16 @@ class Worker:
         self._mongo_wrapper.ensure_index('IsBusy');
         self._mongo_wrapper.ensure_index('_id', self._params['apps_collection'])
 
+        # Proxies Loading
+        self._proxies = Utils.load_proxies(self._args)
+
+        # if "Debug Http" is set to true, "verify" must be "false"
+        self._verify_certificate = not self._args['debug_https']
+        self._is_using_proxies = self._proxies != None
+
+        # Control Variables - Used on the 'retrying logic'
+        retries, max_retries = 0, 8
+
         # Loop only breaks when there are no more apps to be processed
         while True:
 
@@ -124,7 +135,21 @@ class Worker:
                     self._mongo_wrapper.remove_app_from_queue(seed_record)
                     continue
 
+                # Get Request for the App's Page
+                response = requests.get(url,
+                                        HTTPUtils.headers,
+                                        verify=self._verify_certificate,
+                                        proxies=Utils.get_proxy(self))
 
+                # Sanity Checks on Response
+                if not response.text or response.status_code != requests.codes.ok:
+                    self._logger.info('Error Opening App Page : %s' % url)
+
+                    retries += 1
+
+                    # Retries logic are different if proxies are being used
+                    if self._is_using_proxies:
+                        Utils.sleep()
 
 
             except Exception as exception:

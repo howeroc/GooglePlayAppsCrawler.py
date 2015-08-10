@@ -98,6 +98,10 @@ class Utils:
         proxies = []
 
         proxies_reader = args['proxies_path']
+
+        if not proxies_reader:
+            return None
+
         for line in proxies_reader:
             server, port, username, password = line.split(':')
             proxies.append(proxy_format.format(username,
@@ -117,17 +121,20 @@ class Utils:
         return None
 
     @staticmethod
-    def sleep(errors=0):
+    def sleep(errors=0, is_using_proxies=False):
         """
         Single point of "Process Sleep"
         """
-        if errors != 0:
-            time.sleep(random.randint(2,3))
-        elif errors >= 8:
-            time.sleep(60 * 20) # 20 Minutes Nap
-        else:
+
+        if is_using_proxies:
+            time.sleep(2)
+
+        elif errors < 8:
             #Calculating next wait time ( 2 ^ errors, seconds)
             time.sleep(2 ** errors)
+        else:
+            # Maximum Sleep Time : 20 Minutes
+            time.sleep(60 * 20)
 
 class HTTPUtils:
     headers={'Host': 'play.google.com',
