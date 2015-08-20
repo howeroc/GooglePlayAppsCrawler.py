@@ -5,6 +5,7 @@ import errno
 from lxml import html
 from shared.Utils import Utils
 from shared.Utils import HTTPUtils
+from shared.Parser import parser as html_parser
 
 class Worker:
 
@@ -112,6 +113,8 @@ class Worker:
         # Control Variables - Used on the 'retrying logic'
         retries, max_retries = 0, 8
 
+        parser = html_parser()
+
         # Loop only breaks when there are no more apps to be processed
         while True:
 
@@ -151,6 +154,8 @@ class Worker:
                     if self._is_using_proxies:
                         Utils.sleep()
 
+                # Scraping Data from HTML
+                parser.parse_app_data(response.text)
 
             except Exception as exception:
                 self._logger.error(exception)
