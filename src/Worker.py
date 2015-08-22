@@ -139,6 +139,7 @@ class Worker:
                     continue
 
                 # Get Request for the App's Page
+                #url = "https://play.google.com/store/apps/details?id=com.rovio.BadPiggiesHD"
                 response = requests.get(url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
