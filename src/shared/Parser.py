@@ -12,7 +12,9 @@ class XPath:
         "IsTopDeveloper": "//meta[@itemprop='topDeveloperBadgeUrl']/@itemprop",
         "DeveloperURL": "//div[@class='info-container']/div[@itemprop='author']/meta[@itemprop='url']/@content",
         "Price": "//span[@itemprop='offers' and @itemtype='http://schema.org/Offer']/meta[@itemprop='price']/@content",
-        "Reviewers": "//div[@class='header-star-badge']/div[@class='stars-count']/text()"
+        "Reviewers": "//div[@class='header-star-badge']/div[@class='stars-count']/text()",
+        "Description": "//div[@class='show-more-content text-body' and @itemprop='description']/div/text()|//div[@class='show-more-content text-body' and @itemprop='description']/div/p/text()",
+        "WhatsNew": "//div[@class='recent-change']/text()"
     }
 
 
@@ -34,6 +36,8 @@ class parser:
         app_data['Developer'] = self.extract_node_text(html_map, 'Developer')
         app_data['IsTopDeveloper'] = self.extract_node_text(html_map, 'IsTopDeveloper') is not None
         app_data['DeveloperURL'] = self.extract_node_text(html_map, 'DeveloperURL')
+        app_data['Description'] = "\n".join(self.extract_node_text(html_map, 'Description', True))
+        app_data['WhatsNew'] = "\n".join(self.extract_node_text(html_map, 'WhatsNew', True))
 
         # Attributes that require special handling to be calculated / scraped
 
@@ -81,4 +85,5 @@ class parser:
             return node[0].strip()
         else:
             # Distinct elements found
-            return list(x.strip() for x in set(node))
+            seen = set()
+            return [x for x in node if x not in seen and not seen.add(x)]
