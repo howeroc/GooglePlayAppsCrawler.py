@@ -139,7 +139,7 @@ class Worker:
                     continue
 
                 # Get Request for the App's Page
-                #url = "https://play.google.com/store/apps/details?id=com.rovio.BadPiggiesHD"
+                url = "https://play.google.com/store/apps/details?id=com.playdead.limbo.full"
                 response = requests.get(url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
@@ -156,7 +156,7 @@ class Worker:
                         Utils.sleep()
 
                 # Scraping Data from HTML
-                parser.parse_app_data(response.text)
+                app = parser.parse_app_data(response.text)
 
             except Exception as exception:
                 self._logger.error(exception)
