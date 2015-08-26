@@ -14,7 +14,10 @@ class XPath:
         "Price": "//span[@itemprop='offers' and @itemtype='http://schema.org/Offer']/meta[@itemprop='price']/@content",
         "Reviewers": "//div[@class='header-star-badge']/div[@class='stars-count']/text()",
         "Description": "//div[@class='show-more-content text-body' and @itemprop='description']/div/text()|//div[@class='show-more-content text-body' and @itemprop='description']/div/p/text()",
-        "WhatsNew": "//div[@class='recent-change']/text()"
+        "WhatsNew": "//div[@class='recent-change']/text()",
+        "HaveInAppPurchases": "//div[@class='title' and contains(text(),'app')]/following-sibling::div/text()",
+        "Score.Count": "//div[@class='rating-box']/div[@class='score-container']/meta[@itemprop='ratingValue']/@content",
+        "Score.FiveStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container five']/span[@class='bar-number']/text()"
     }
 
 
@@ -38,6 +41,13 @@ class parser:
         app_data['DeveloperURL'] = self.extract_node_text(html_map, 'DeveloperURL')
         app_data['Description'] = "\n".join(self.extract_node_text(html_map, 'Description', True))
         app_data['WhatsNew'] = "\n".join(self.extract_node_text(html_map, 'WhatsNew', True))
+        app_data['HaveInAppPurchases'] = self.extract_node_text(html_map, 'HaveInAppPurchases') is not None
+
+        # Parsing App's Score
+        score = dict()
+
+        score['Count'] = self.extract_node_as_decimal(html_map, 'Score.Count')
+        score['FiveStars'] = self.extract_node_as_integer(html_map, 'Score.FiveStars')
 
         # Attributes that require special handling to be calculated / scraped
 
@@ -87,3 +97,32 @@ class parser:
             # Distinct elements found
             seen = set()
             return [x for x in node if x not in seen and not seen.add(x)]
+
+    def extract_node_as_decimal(self, map, key, decimal_places = 1):
+        """
+        Parses the result found within that xpath node,
+        as a decimal.
+
+        If no value is found, None is returned
+        """
+        node = self.extract_node_text(map,key)
+
+        if node:
+            return round(Decimal(node), decimal_places)
+
+        return None
+
+    def extract_node_as_integer(self, map, key):
+        """
+        Parses the result found within that xpath node,
+        as an integer.
+
+        If no value is found, None is returned
+        """
+        node = self.extract_node_text(map,key)
+
+        if node:
+            parseable_str = [digit for digit in node if str.isdigit(digit)]
+            return int("".join(parseable_str))
+
+        return None
