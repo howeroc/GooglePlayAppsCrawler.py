@@ -17,7 +17,11 @@ class XPath:
         "WhatsNew": "//div[@class='recent-change']/text()",
         "HaveInAppPurchases": "//div[@class='title' and contains(text(),'app')]/following-sibling::div/text()",
         "Score.Count": "//div[@class='rating-box']/div[@class='score-container']/meta[@itemprop='ratingValue']/@content",
-        "Score.FiveStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container five']/span[@class='bar-number']/text()"
+        "Score.FiveStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container five']/span[@class='bar-number']/text()",
+        "Score.FourStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container four']/span[@class='bar-number']/text()",
+        "Score.ThreeStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container three']/span[@class='bar-number']/text()",
+        "Score.TwoStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container two']/span[@class='bar-number']/text()",
+        "Score.OneStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container one']/span[@class='bar-number']/text()"
     }
 
 
@@ -48,6 +52,10 @@ class parser:
 
         score['Count'] = self.extract_node_as_decimal(html_map, 'Score.Count')
         score['FiveStars'] = self.extract_node_as_integer(html_map, 'Score.FiveStars')
+        score['FourStars'] = self.extract_node_as_integer(html_map, 'Score.FourStars')
+        score['ThreeStars'] = self.extract_node_as_integer(html_map, 'Score.ThreeStars')
+        score['TwoStars'] = self.extract_node_as_integer(html_map, 'Score.TwoStars')
+        score['OneStars'] = self.extract_node_as_integer(html_map, 'Score.OneStars')
 
         # Attributes that require special handling to be calculated / scraped
 
