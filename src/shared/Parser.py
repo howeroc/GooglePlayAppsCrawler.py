@@ -21,7 +21,14 @@ class XPath:
         "Score.FourStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container four']/span[@class='bar-number']/text()",
         "Score.ThreeStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container three']/span[@class='bar-number']/text()",
         "Score.TwoStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container two']/span[@class='bar-number']/text()",
-        "Score.OneStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container one']/span[@class='bar-number']/text()"
+        "Score.OneStars":"//div[@class='rating-histogram']/div[@class='rating-bar-container one']/span[@class='bar-number']/text()",
+        "LastUpdateDate": "//div[@class='meta-info']/div[@itemprop='datePublished']/text()",
+        "CurrentVersion": "//div[@class='content' and @itemprop='softwareVersion']/text()",
+        "Instalations": "//div[@class='content' and @itemprop='numDownloads']/text()",
+        "ContentRating": "//div[@class='content' and @itemprop='contentRating']/text()",
+        "MinimumOSVersion": "//div[@class='content' and @itemprop='operatingSystems']/text()",
+        "DeveloperUrls": "//div[@class='content contains-text-link']/a[@class='dev-link']",
+        "PhysicalAddress": "//div[@class='content physical-address']/text()"
     }
 
 
@@ -46,6 +53,17 @@ class parser:
         app_data['Description'] = "\n".join(self.extract_node_text(html_map, 'Description', True))
         app_data['WhatsNew'] = "\n".join(self.extract_node_text(html_map, 'WhatsNew', True))
         app_data['HaveInAppPurchases'] = self.extract_node_text(html_map, 'HaveInAppPurchases') is not None
+        app_data['LastUpdateDate'] = self.extract_node_text(html_map, 'LastUpdateDate')
+        app_data['CurrentVersion'] = self.extract_node_text(html_map, 'CurrentVersion')
+        app_data['Instalations'] = self.extract_node_text(html_map, 'Instalations')
+        app_data['ContentRating'] = self.extract_node_text(html_map, 'ContentRating')
+        app_data['MinimumOSVersion'] = self.extract_node_text(html_map, 'MinimumOSVersion')
+
+        address = self.extract_node_text(html_map, 'PhysicalAddress')
+        if address:
+            app_data['PhysicalAddress'] = address.replace('\n', ' ')
+        else:
+            app_data['PhysicalAddress'] = None
 
         # Parsing App's Score
         score = dict()
@@ -80,8 +98,14 @@ class parser:
 
         # 3 - Reviewers
         tmp_value = self.extract_node_text(html_map, 'Reviewers', True)
-        tmp_value = tmp_value[0].strip('(').strip(')').replace(',','').replace('.', '')
+        tmp_value = tmp_value[1].replace('(', '').replace(')', '').replace(',','').replace('.', '')
         app_data['Reviewers'] = int(tmp_value)
+
+        # 4 - Developer Urls (Privacy, Email and Website)
+        dev_urls = self.extract_developer_urls(html_map)
+        app_data['DeveloperEmail'] = dev_urls.get('Email', None)
+        app_data['DeveloperWebsite'] = dev_urls.get('Site', None)
+        app_data['DeveloperPrivacyPolicy'] = dev_urls.get('Privacy', None)
 
         return app_data
 
@@ -134,3 +158,28 @@ class parser:
             return int("".join(parseable_str))
 
         return None
+
+    def extract_developer_urls(self, map):
+        """
+        Applies the XPath related to Developer Data into the
+        map object that contains the html loaded from the response.
+
+        Returns a dictionary with relevant data found about the developer
+        """
+        xpath = XPath.xPaths['DeveloperUrls']
+        nodes = map.xpath(xpath)
+
+        if not nodes:
+            return None
+
+        dev_data = dict()
+
+        for tmp_node in nodes:
+            if 'MAIL' in tmp_node.text.upper():
+                dev_data['Email'] = tmp_node.attrib['href'].replace('mailto:','')
+            elif 'SITE' in tmp_node.text.upper():
+                dev_data['Site'] = tmp_node.attrib['href']
+            else:
+                dev_data['Privacy'] = tmp_node.attrib['href'].replace('https://www.google.com/url?q=', '')
+
+        return dev_data
