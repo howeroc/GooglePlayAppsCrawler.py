@@ -28,7 +28,8 @@ class XPath:
         "ContentRating": "//div[@class='content' and @itemprop='contentRating']/text()",
         "MinimumOSVersion": "//div[@class='content' and @itemprop='operatingSystems']/text()",
         "DeveloperUrls": "//div[@class='content contains-text-link']/a[@class='dev-link']",
-        "PhysicalAddress": "//div[@class='content physical-address']/text()"
+        "PhysicalAddress": "//div[@class='content physical-address']/text()",
+        "RelatedApps": "//div[@class='card-content id-track-click id-track-impression']/a[@class='card-click-target']/@href"
     }
 
 
@@ -36,6 +37,11 @@ class XPath:
 class parser:
 
     def parse_app_data(self, html):
+        """
+        Extracts relevant data out of the html received as argument
+
+        :return: Dictionary mapping the app data
+        """
 
         # Dictionary to Hold App's data
         app_data = dict()
@@ -108,6 +114,17 @@ class parser:
         app_data['DeveloperPrivacyPolicy'] = dev_urls.get('Privacy', None)
 
         return app_data
+
+    def parse_related_apps(self, html):
+        # Loading Html
+        html_map = lxml.html.fromstring(html)
+
+        # Reaching Useful Data
+        xpath = XPath.xPaths['RelatedApps']
+        nodes = html_map.xpath(xpath)
+
+        # Appending url prefix to the actual url found within the html
+        return map((lambda url: '{0}{1}'.format('https://play.google.com', url)), nodes)
 
     def extract_node_text(self, map, key, is_list=False):
         """

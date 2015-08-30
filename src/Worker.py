@@ -131,6 +131,8 @@ class Worker:
                 if 'http://' not in url and 'https://' not in url:
                     url = 'https://play.google.com' + url
 
+                self._logger.info('Processing: {0}' % url)
+
                 # Is this app processed already ?
                 if self._mongo_wrapper.app_processed(url, self._params['apps_collection']):
 
@@ -154,9 +156,34 @@ class Worker:
                     # Retries logic are different if proxies are being used
                     if self._is_using_proxies:
                         Utils.sleep()
+                try:
+                    # Scraping Data from HTML
+                    app = parser.parse_app_data(response.text)
 
-                # Scraping Data from HTML
-                app = parser.parse_app_data(response.text)
+                    # Reaching related apps
+                    related_apps = parser.parse_related_apps(response.text)
+
+                    if not related_apps:
+                        app['RelatedUrls'] = None
+                    else:
+                        app['RelatedUrls'] = related_apps
+                        self._logger.info('\tRelated Apps: {0} - {1}' % (url, len(related_apps)))
+
+                    # Inserting data into MongoDB
+                    self._mongo_wrapper._insert(app, self._params['apps_collection'])
+
+                    # Re-Feeding seed collection with related-app urls
+                    if app['RelatedUrls']:
+                        for url in app['RelatedUrls']:
+                            if not self._mongo_wrapper.app_processed(url, self._params['apps_collection']) and \
+                               not self._mongo_wrapper.app_processed(url, self._params['seed_collection']):
+                                self._mongo_wrapper.insert_on_queue(url, self._params['seed_collection'])
+
+                except Exception as exception:
+                    self._logger.error(exception)
+
+                    # Toggling app state back to false
+                    self._mongo_wrapper.toggle_app_busy(url,False, self._params['seed_collection'])
 
             except Exception as exception:
                 self._logger.error(exception)

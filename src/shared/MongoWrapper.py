@@ -212,6 +212,12 @@ class MongoDBWrapper:
 
         return self._database[collection].delete_one(filter).acknowledged
 
+    def toggle_app_busy(self, url, is_busy, collection):
+        query = {'_id': url}
+        update = {'$set': {'IsBusy': is_busy}}
+
+        return self._database[collection].update_one(query, update)
+
 if __name__ == '__main__':
 
     print 'Connecting to the database'
