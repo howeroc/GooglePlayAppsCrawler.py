@@ -60,7 +60,7 @@ class Worker:
         parser.add_argument('--max-errors',
                             type=int,
                             default=100,
-                            help='Max http errors allowed on Bootstrapping \
+                            help='Max http errors allowed on workers \
                                  phase. (default=100)')
 
         parser.add_argument('--debug-https',
@@ -131,7 +131,7 @@ class Worker:
                 if 'http://' not in url and 'https://' not in url:
                     url = 'https://play.google.com' + url
 
-                self._logger.info('Processing: {0}' % url)
+                self._logger.info('Processing: %s' % url)
 
                 # Is this app processed already ?
                 if self._mongo_wrapper.app_processed(url, self._params['apps_collection']):
@@ -141,7 +141,6 @@ class Worker:
                     continue
 
                 # Get Request for the App's Page
-                url = "https://play.google.com/store/apps/details?id=com.rovio.angrybirds"
                 response = requests.get(url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
@@ -160,6 +159,10 @@ class Worker:
                     # Scraping Data from HTML
                     app = parser.parse_app_data(response.text)
 
+                    # Stamping URL into app model
+                    app['Url'] = url
+                    app['_id'] = url
+
                     # Reaching related apps
                     related_apps = parser.parse_related_apps(response.text)
 
@@ -167,7 +170,7 @@ class Worker:
                         app['RelatedUrls'] = None
                     else:
                         app['RelatedUrls'] = related_apps
-                        self._logger.info('\tRelated Apps: {0} - {1}' % (url, len(related_apps)))
+                        self._logger.info('Related Apps: %s - %d' % (url, len(related_apps)))
 
                     # Inserting data into MongoDB
                     self._mongo_wrapper._insert(app, self._params['apps_collection'])

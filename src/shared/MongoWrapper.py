@@ -205,7 +205,7 @@ class MongoDBWrapper:
         returns True if the operation worked, False otherwise
         """
 
-        filter = {'_id', app['_id']}
+        filter = {'_id': app['_id']}
 
         if collection is None:
             return self._collection.delete_one(filter).acknowledged

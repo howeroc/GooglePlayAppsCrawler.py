@@ -88,11 +88,11 @@ class parser:
 
         if tmp_value is None or tmp_value is '0':
             app_data['IsFree'] = True
-            app_data['Price'] = 0.0
+            app_data['Price'] = 0
         else:
             app_data['IsFree'] = False
             tmp_value = "".join([digit for digit in tmp_value if str.isdigit(digit) or digit in ['.', ',']])
-            app_data['Price'] = Decimal(tmp_value.replace(',', '.'))
+            app_data['Price'] = int(Decimal(tmp_value.replace(',', '.')) * 100) # PRICE IS MULTIPLIED by 100 TO MAKE IT MONGODB FRIENDLY AS AN INT
 
         # 2 - Category
         tmp_value = self.extract_node_text(html_map, 'Category')
