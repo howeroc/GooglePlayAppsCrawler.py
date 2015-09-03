@@ -50,7 +50,7 @@ Here's a <a href="https://s3.amazonaws.com/GooglePlayStore/Google%20Play%20Stats
 
 * I highly recommend you read all the pages of this wiki, which won't take long.
 
-* Know C#
+* Know Python
 
 # How about the database?
 
