@@ -1,3 +1,12 @@
+GooglePlayStoreCrawler.PY
+======================
+
+Simple scalable crawler for Apps data from the Play Store.
+
+This project is a ported version of my other <a href="https://github.com/MarcelloLins/GooglePlayAppsCrawler">Google Play Store Crawler (In C#)</a>
+
+You don't have to input any of your Google Account credentials since this Crawler acts like a "Logged Out" user.
+
 New: Donate-Button
 ======================
 
@@ -9,16 +18,8 @@ The costs related to this project range from Virtual Machines costs, paid HTTP-P
 
 Make it happen !
 
-GooglePlayStoreCrawler.PY
-======================
-
-Simple scalable crawler for Apps data from the Play Store.
-
-This project is a ported version of my other <a href="https://github.com/MarcelloLins/GooglePlayAppsCrawler">Google Play Store Crawler (In C#)</a>
-
-You don't have to input any of your Google Account credentials since this Crawler acts like a "Logged Out" user.
-
 # Exporting the Database
+
 As people kept requesting me, i decided to export the database on it's current state.
 I you want the exported file, get in touch with me at : marcello.grechi@gmail.com, and I will send you the file. (I decided not to keep the file public, because there were people downloading the same file 
 over and over again, and not paying for it, which led to a huge AWS bill that I had to pay).
