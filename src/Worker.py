@@ -16,8 +16,10 @@ class Worker:
         """
 
         params = {}
-        params['server'] = 'mobiledata.bigdatacorp.com.br'
-        params['port'] = '21766'
+        # params['server'] = 'mobiledata.bigdatacorp.com.br'
+        # params['port'] = '21766'
+        params['server'] = '45.32.49.146'
+        params['port'] = '27017'
         params['database'] = 'MobileAppsData'
         params['username'] = 'GitHubCrawlerUser'
         params['password'] = 'g22LrJvULU5B'
