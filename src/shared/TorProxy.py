@@ -7,7 +7,7 @@ class TorProxy:
     @staticmethod
     def change_ip(self):
         with Controller.from_port(port = 9051) as controller:
-            controller.authenticate(password="password")
+            controller.authenticate(password="weiphone2011")
             controller.signal(Signal.NEWNYM)
 
     @staticmethod
