@@ -180,7 +180,7 @@ class Bootstrapper:
                 response = requests.get(category_url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
-                                        # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                        # proxies=Utils.get_proxy(self))
                                         proxies=TorProxy.get_proxy())
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -210,7 +210,7 @@ class Bootstrapper:
                                          data = post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
-                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         # proxies=Utils.get_proxy(self))
                                          proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:
@@ -259,7 +259,7 @@ class Bootstrapper:
                                         data=post_data,
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
-                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         # proxies=Utils.get_proxy(self)
                                          proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:
@@ -294,7 +294,7 @@ class Bootstrapper:
                                          data=post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
-                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         # proxies=Utils.get_proxy(self))
                                          proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:

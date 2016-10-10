@@ -17,4 +17,3 @@ class TorProxy:
             'https': 'socks5://localhost:9050'
         }
         return proxies
-
