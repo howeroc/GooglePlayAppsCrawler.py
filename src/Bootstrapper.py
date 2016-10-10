@@ -8,6 +8,7 @@ import re as regex
 from lxml import html
 from shared.Utils import Utils
 from shared.Utils import HTTPUtils
+from shared.TorProxy import TorProxy
 
 class Bootstrapper:
 
@@ -20,7 +21,7 @@ class Bootstrapper:
         params = {}
         # params['server'] = 'mobiledata.bigdatacorp.com.br'
         # params['port'] = '21766'
-        params['server'] = '45.32.49.146'
+        params['server'] = '127.0.0.1'
         params['port'] = '27017'
         params['database'] = 'MobileAppsData'
         params['username'] = 'GitHubCrawlerUser'
@@ -179,8 +180,8 @@ class Bootstrapper:
                 response = requests.get(category_url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
-                                        proxies=Utils.get_proxy())
-
+                                        # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                        proxies=TorProxy.get_proxy())
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
@@ -209,7 +210,8 @@ class Bootstrapper:
                                          data = post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
-                                         proxies=Utils.get_proxy())
+                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -257,7 +259,8 @@ class Bootstrapper:
                                         data=post_data,
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
-                                        proxies=Utils.get_proxy())
+                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -291,7 +294,8 @@ class Bootstrapper:
                                          data=post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
-                                         proxies=Utils.get_proxy())
+                                         # proxies=Utils.get_proxy(self)) #此处可换为Tor来执行
+                                         proxies=TorProxy.get_proxy())
 
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
