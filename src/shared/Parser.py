@@ -1,5 +1,4 @@
 import lxml
-import logging
 from decimal import Decimal
 
 class XPath:
@@ -86,11 +85,6 @@ class parser:
 
         # 1 - Price and IsFree
         tmp_value = self.extract_node_text(html_map, "Price")
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="[%(asctime)s] %(name)s:%(levelname)s: %(message)s"
-        )
-        logging.info('price_str:' + tmp_value)
         if tmp_value is None or tmp_value is '0':
             app_data['IsFree'] = True
             app_data['Price'] = 0
