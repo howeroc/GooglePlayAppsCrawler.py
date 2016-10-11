@@ -145,7 +145,7 @@ class Worker:
                     continue
 
                 # Get Request for the App's Page
-                response = requests.get(url,
+                response = requests.get(url + "&hl=en",
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
