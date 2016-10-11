@@ -6,9 +6,9 @@ import sys
 import errno
 import re as regex
 from lxml import html
+from shared.TorProxy import TorProxy
 from shared.Utils import Utils
 from shared.Utils import HTTPUtils
-from shared.TorProxy import TorProxy
 
 class Bootstrapper:
 
