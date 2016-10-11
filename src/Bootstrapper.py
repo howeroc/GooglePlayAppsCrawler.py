@@ -246,7 +246,7 @@ class Bootstrapper:
         parsed_urls = set()
 
         # Compiling regex used for parsing page token
-        page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
+        page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\x22,")
 
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
