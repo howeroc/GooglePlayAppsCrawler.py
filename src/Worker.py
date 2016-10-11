@@ -6,6 +6,7 @@ from lxml import html
 from shared.Utils import Utils
 from shared.Utils import HTTPUtils
 from shared.Parser import parser as html_parser
+from shared.TorProxy import TorProxy
 
 class Worker:
 
@@ -18,7 +19,8 @@ class Worker:
         params = {}
         # params['server'] = 'mobiledata.bigdatacorp.com.br'
         # params['port'] = '21766'
-        params['server'] = '45.32.49.146'
+        # params['server'] = '45.32.49.146'
+        params['server'] = '127.0.0.1'
         params['port'] = '27017'
         params['database'] = 'MobileAppsData'
         params['username'] = 'GitHubCrawlerUser'
@@ -146,7 +148,8 @@ class Worker:
                 response = requests.get(url,
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
-                                        proxies=Utils.get_proxy(self))
+                                        # proxies=Utils.get_proxy(self))
+                                        proxies=TorProxy.get_proxy())
 
                 # Sanity Checks on Response
                 if not response.text or response.status_code != requests.codes.ok:
