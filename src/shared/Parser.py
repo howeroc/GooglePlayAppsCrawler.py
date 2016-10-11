@@ -49,6 +49,17 @@ class parser:
         # Loading Html
         html_map = lxml.html.fromstring(html)
 
+        description = self.extract_node_text(html_map, 'Description', True)
+        whats_new = self.extract_node_text(html_map, 'WhatsNew', True)
+        if description is None:
+            description=''
+        else:
+            description = "\n".join(description)
+        if whats_new is None:
+            whats_new=''
+        else:
+            whats_new = "\n".join(whats_new)
+
         # Reaching Useful Data
         app_data['Name'] = self.extract_node_text(html_map, 'Name')
         app_data['CoverImgUrl'] = self.extract_node_text(html_map, 'CoverImgUrl')
@@ -56,8 +67,8 @@ class parser:
         app_data['Developer'] = self.extract_node_text(html_map, 'Developer')
         app_data['IsTopDeveloper'] = self.extract_node_text(html_map, 'IsTopDeveloper') is not None
         app_data['DeveloperURL'] = self.extract_node_text(html_map, 'DeveloperURL')
-        app_data['Description'] = "\n".join(self.extract_node_text(html_map, 'Description', True))
-        app_data['WhatsNew'] = "\n".join(self.extract_node_text(html_map, 'WhatsNew', True))
+        app_data['Description'] = description
+        app_data['WhatsNew'] = whats_new
         app_data['HaveInAppPurchases'] = self.extract_node_text(html_map, 'HaveInAppPurchases') is not None
         app_data['LastUpdateDate'] = self.extract_node_text(html_map, 'LastUpdateDate')
         app_data['CurrentVersion'] = self.extract_node_text(html_map, 'CurrentVersion')
