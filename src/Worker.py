@@ -157,6 +157,10 @@ class Worker:
 
                     retries += 1
 
+                    # stop try if retry too many times
+                    if retries > max_retries:
+                        continue
+
                     # Retries logic are different if proxies are being used
                     if self._is_using_proxies:
                         Utils.sleep()
