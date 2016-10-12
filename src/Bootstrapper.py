@@ -197,7 +197,13 @@ class Bootstrapper:
                     break # Response worked
 
             except requests.exceptions.SSLError as error:
-                print 'SSL_Error : ' + error.errno
+                # fix the errno is NoneType error
+                error_str = "Unknown error"
+                if not error.errno is None:
+                    error_str = error.errno
+                elif not error.strerror is None:
+                    error_str = error.strerror
+                print 'SSL_Error : ' + error_str
 
         # Paging through results
         base_skip = 60
@@ -230,7 +236,13 @@ class Bootstrapper:
                         #Utils.sleep()
 
             except requests.exceptions.SSLError as error:
-                print 'SSL_Error : ' + error.errno
+                # fix the errno is NoneType error
+                error_str = "Unknown error"
+                if not error.errno is None:
+                    error_str = error.errno
+                elif not error.strerror is None:
+                    error_str = error.strerror
+                print 'SSL_Error : ' + error_str
 
             current_multiplier+=1
 
@@ -279,7 +291,13 @@ class Bootstrapper:
                     break # Response worked
 
             except requests.exceptions.SSLError as error:
-                print 'SSL_Error : ' + error.errno
+                # fix the errno is NoneType error
+                error_str = "Unknown error"
+                if not error.errno is None:
+                    error_str = error.errno
+                elif not error.strerror is None:
+                    error_str = error.strerror
+                print 'SSL_Error : ' + error_str
 
         # Paging Through Results
         while http_errors <= self._args['max_errors']:
