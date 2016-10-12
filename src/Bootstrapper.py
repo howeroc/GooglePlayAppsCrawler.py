@@ -184,6 +184,7 @@ class Bootstrapper:
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
                                         proxies=TorProxy.get_proxy())
+                self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
@@ -220,7 +221,7 @@ class Bootstrapper:
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
                                          proxies=TorProxy.get_proxy())
-
+                self._logger.info('Category url : %s' % category_url + '?authuser=0&hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
@@ -277,7 +278,7 @@ class Bootstrapper:
                                         verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self)
                                          proxies=TorProxy.get_proxy())
-
+                self._logger.info('Search url : %s' % post_url + '&hl=en')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
@@ -318,7 +319,7 @@ class Bootstrapper:
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
                                          proxies=TorProxy.get_proxy())
-
+                self._logger.info('Search url : %s' % post_url + '&hl=en')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
