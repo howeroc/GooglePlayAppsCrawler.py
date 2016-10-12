@@ -179,7 +179,7 @@ class Bootstrapper:
         while http_errors <= self._args['max_errors']:
 
             try:
-                response = requests.get(category_url,
+                response = requests.get(category_url + '?hl=en&gl=us',
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
@@ -214,7 +214,7 @@ class Bootstrapper:
             post_data = self.assemble_category_post_data(current_multiplier,
                                                          base_skip)
             try:
-                response = requests.post(category_url + '?authuser=0',
+                response = requests.post(category_url + '?authuser=0&hl=en&gl=us',
                                          data = post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
@@ -271,7 +271,7 @@ class Bootstrapper:
         while http_errors <= self._args['max_errors']:
 
             try:
-                response = requests.post(post_url,
+                response = requests.post(post_url + '&hl=en&gl=us',
                                         data=post_data,
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
@@ -312,7 +312,7 @@ class Bootstrapper:
             post_data = self.assemble_word_search_post_data(page_token)
 
             try:
-                response = requests.post(post_url,
+                response = requests.post(post_url + '&hl=en&gl=us',
                                          data=post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
