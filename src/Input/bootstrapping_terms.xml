@@ -41,6 +41,71 @@
 	    <category>CASUAL</category>
 	    <category>CARDS</category>
 	    <category>RACING</category>
+		<!--自定义分类-->
+		<!--games-->
+		<category>Action</category>
+		<category>Adventure</category>
+		<category>Arcade</category>
+		<category>Board</category>
+		<category>Card</category>
+		<category>Casino</category>
+		<category>Casual</category>
+		<category>Educational</category>
+		<category>Music</category>
+		<category>Puzzle</category>
+		<category>Racing</category>
+		<category>Role Playing</category>
+		<category>Simulation</category>
+		<category>Sports</category>
+		<category>strategy</category>
+		<category>Trivia</category>
+		<category>Word</category>
+		<!--apps-->
+		<category>Android Wear</category>
+		<category>Art</category>
+		<category>Design</category>
+		<category>Auto</category>
+		<category>Vehicles</category>
+		<category>Beauty</category>
+		<category>Books Reference</category>
+		<category>Business</category>
+		<category>Comics</category>
+		<category>Communication</category>
+		<category>Dating</category>
+		<category>Education</category>
+		<category>Entertainment</category>
+		<category>Events</category>
+		<category>Finance</category>
+		<category>Food</category>
+		<category>Drink</category>
+		<category>Health</category>
+		<category>Fitness</category>
+		<category>House</category>
+		<category>Home</category>
+		<category>Libraries</category>
+		<category>Demo</category>
+		<category>Lifestyle</category>
+		<category>Maps</category>
+		<category>Navigation</category>
+		<category>Medical</category>
+		<category>Music</category>
+		<category>Audio</category>
+		<category>News</category>
+		<category>Magazines</category>
+		<category>Parenting</category>
+		<category>Personalization</category>
+		<category>Photography</category>
+		<category>Productivity</category>
+		<category>Shopping</category>
+		<category>Social</category>
+		<category>Sports</category>
+		<category>Tools</category>
+		<category>Travel Local</category>
+		<category>Video Players</category>
+		<category>Editors</category>
+		<category>Weather</category>
+		<!--自定义分类结束-->
+
 	</categories>
 	<misc_terms>
 		<misc>INDIE</misc>
