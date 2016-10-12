@@ -271,7 +271,7 @@ class Bootstrapper:
         while http_errors <= self._args['max_errors']:
 
             try:
-                response = requests.post(post_url + '&hl=en&gl=us',
+                response = requests.post(post_url + '&hl=en',# cannot use gl=us or there will no pageTok
                                         data=post_data,
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
@@ -312,7 +312,7 @@ class Bootstrapper:
             post_data = self.assemble_word_search_post_data(page_token)
 
             try:
-                response = requests.post(post_url + '&hl=en&gl=us',
+                response = requests.post(post_url + '&hl=en',# cannot use gl=us or there will no pageTok
                                          data=post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
