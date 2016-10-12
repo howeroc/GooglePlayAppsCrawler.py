@@ -168,6 +168,12 @@ class Worker:
                     app['Url'] = url
                     app['_id'] = url
 
+                    url_arr = url.split("?id=")
+                    if isinstance(url_arr, list) and len(url_arr) > 1 and not url_arr[1] is None:
+                        app['PkgName'] = url_arr[1]
+                    else:
+                        app['PkgName'] = ''
+
                     # Reaching related apps
                     related_apps = parser.parse_related_apps(response.text)
 
