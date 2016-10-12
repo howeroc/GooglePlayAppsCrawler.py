@@ -121,7 +121,9 @@ class Bootstrapper:
         needed for the request to work
         """
         page_token_str = page_token.replace(':S:', '%3AS%3A')
-        page_token_str = page_token_str.replace('\\42', '')
+        # page_token_str = page_token_str.replace('\\42', '')
+        # Google pagTok rule changed from x42 to x22
+        page_token_str = page_token_str.replace('\\x22', '')
         page_token_str = page_token_str.replace('\\u003d', '')
         page_token_str = page_token_str.replace(',', '')
         return page_token_str
@@ -242,7 +244,9 @@ class Bootstrapper:
         parsed_urls = set()
 
         # Compiling regex used for parsing page token
-        page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
+        # page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\42,")
+        # Google pagTok rule changed from x42 to x22
+        page_token_regex = regex.compile(r"GAEi+.+\:S\:.{11}\\x22,")
 
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
