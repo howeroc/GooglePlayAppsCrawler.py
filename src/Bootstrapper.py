@@ -388,8 +388,8 @@ class Bootstrapper:
             self.crawl_category(top_level_category)
 
         # Simulating searches for specific words
-        for word in bs_seed.get_words():
-            self.crawl_by_search_word(word)
+        # for word in bs_seed.get_words():
+        #     self.crawl_by_search_word(word)
 
 # Starting Point
 if __name__ == "__main__":
