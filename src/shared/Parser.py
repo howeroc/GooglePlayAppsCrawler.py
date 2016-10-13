@@ -1,10 +1,10 @@
 import lxml
 from decimal import Decimal
+from datetime import datetime
 
 class XPath:
 
     xPaths = {
-        # "Name" : "//div[@class='details-info']//h1[@class='document-title' and @itemprop='name']/div[@class='id-app-title']/text()",
         "Name" : "//div[@class='info-container']/div[@class='document-title' and @itemprop='name']/div/text()",
         "CoverImgUrl": "//div[@class='details-info']//div[@class='cover-container']/img[@class='cover-image']/@src",
         "Screenshots": "//div[@class='thumbnails']//img[contains(@class,'screenshot')]/@src",
@@ -119,10 +119,10 @@ class parser:
         # 3 - Reviewers
         # update reviewers score's deal method to avoid  'NoneType' object has no attribute '__getitem__' error caused by apps without review
         tmp_value = self.extract_node_text(html_map, 'Reviewers')
-        if tmp_value is None:
-            tmp_value = 0
+        if tmp_value:
+            tmp_value = tmp_value.replace('(', '').replace(')', '').replace(',', '').replace('.', '')
         else:
-            tmp_value = tmp_value.replace('(', '').replace(')', '').replace(',','').replace('.', '')
+            tmp_value = 0
         app_data['Reviewers'] = int(tmp_value)
 
         # 4 - Developer Urls (Privacy, Email and Website)
@@ -130,6 +130,18 @@ class parser:
         app_data['DeveloperEmail'] = dev_urls.get('Email', None)
         app_data['DeveloperWebsite'] = dev_urls.get('Site', None)
         app_data['DeveloperPrivacyPolicy'] = dev_urls.get('Privacy', None)
+
+        # 5 - LastUpdateDate process the app update date Added by howeroc
+        last_update_date = self.extract_node_text(html_map, 'LastUpdateDate')
+        if last_update_date:
+            last_update_date = datetime.strptime(last_update_date, '%B %d, %Y')
+        else:
+            last_update_date = datetime.strptime('January 1, 2008', '%B %d, %Y')
+
+        app_data['LastUpdateDate'] = last_update_date
+
+        # 6 - CreateTime Added by howeroc
+        app_data['CrawlTime'] = datetime.now()
 
         return app_data
 
