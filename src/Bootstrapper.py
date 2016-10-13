@@ -97,7 +97,8 @@ class Bootstrapper:
                      'cllayout': 'NORMAL',
                      'ipf': 1,
                      'xhr' : 1,
-                     'hl': 'en'}
+                     'hl': 'en',
+                     'gl': 'us'}
 
         return post_data
 
@@ -234,7 +235,9 @@ class Bootstrapper:
                     self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, category_name))
                 else:
-                    for url in self.parse_app_urls(response.text):
+                    urls = self.parse_app_urls(response.text)
+                    self._logger.info('Result number : %s' % len(urls))
+                    for url in urls:
                         if url in parsed_urls:
                             return
 
