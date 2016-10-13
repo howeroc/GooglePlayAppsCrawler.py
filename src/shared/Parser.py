@@ -4,7 +4,8 @@ from decimal import Decimal
 class XPath:
 
     xPaths = {
-        "Name" : "//div[@class='details-info']//h1[@class='document-title' and @itemprop='name']/div[@class='id-app-title']/text()",
+        # "Name" : "//div[@class='details-info']//h1[@class='document-title' and @itemprop='name']/div[@class='id-app-title']/text()",
+        "Name" : "//div[@class='info-container']/div[@class='document-title' and @itemprop='name']/div/text()",
         "CoverImgUrl": "//div[@class='details-info']//div[@class='cover-container']/img[@class='cover-image']/@src",
         "Screenshots": "//div[@class='thumbnails']//img[contains(@class,'screenshot')]/@src",
         "Category": "//div/a[@class='document-subtitle category']/@href",
