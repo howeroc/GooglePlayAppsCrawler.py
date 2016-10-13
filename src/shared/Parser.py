@@ -4,15 +4,15 @@ from decimal import Decimal
 class XPath:
 
     xPaths = {
-        "Name" : "//div[@class='info-container']/div[@class='document-title' and @itemprop='name']/div/text()",
-        "CoverImgUrl": "//div[@class='details-info']/div[@class='cover-container']/img[@class='cover-image']/@src",
+        "Name" : "//div[@class='details-info']//h1[@class='document-title' and @itemprop='name']/div[@class='id-app-title']/text()",
+        "CoverImgUrl": "//div[@class='details-info']//div[@class='cover-container']/img[@class='cover-image']/@src",
         "Screenshots": "//div[@class='thumbnails']//img[contains(@class,'screenshot')]/@src",
         "Category": "//div/a[@class='document-subtitle category']/@href",
-        "Developer": "//div[@class='info-container']/div[@itemprop='author']/a/span[@itemprop='name']/text()",
+        "Developer": "//div[@class='info-container']//div[@itemprop='author']/a/span[@itemprop='name']/text()",
         "IsTopDeveloper": "//meta[@itemprop='topDeveloperBadgeUrl']/@itemprop",
-        "DeveloperURL": "//div[@class='info-container']/div[@itemprop='author']/meta[@itemprop='url']/@content",
+        "DeveloperURL": "//div[@class='info-container']//div[@itemprop='author']/meta/@content",
         "Price": "//span[@itemprop='offers' and @itemtype='http://schema.org/Offer']/meta[@itemprop='price']/@content",
-        "Reviewers": "//div[@class='header-star-badge']/div[@class='stars-count']/text()",
+        "Reviewers": "//div[@class='score-container']/meta[@itemprop='ratingCount']/@content",
         "Description": "//div[@class='show-more-content text-body' and @itemprop='description']/div/text()|//div[@class='show-more-content text-body' and @itemprop='description']/div/p/text()",
         "WhatsNew": "//div[@class='recent-change']/text()",
         "HaveInAppPurchases": "//div[@class='title' and contains(text(),'app')]/following-sibling::div/text()",
@@ -29,7 +29,10 @@ class XPath:
         "MinimumOSVersion": "//div[@class='content' and @itemprop='operatingSystems']/text()",
         "DeveloperUrls": "//div[@class='content contains-text-link']/a[@class='dev-link']",
         "PhysicalAddress": "//div[@class='content physical-address']/text()",
-        "RelatedApps": "//div[@class='card-content id-track-click id-track-impression']/a[@class='card-click-target']/@href"
+        "RelatedApps": "//div[@class='card-content id-track-click id-track-impression']/a[@class='card-click-target']/@href",
+
+        # Add by howeroc
+        "DeveloperOtherApps": "//div[@class='card no-rationale square-cover apps small']//a[@class='card-click-target']/@href",
     }
 
 
