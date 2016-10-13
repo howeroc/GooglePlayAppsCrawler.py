@@ -12,7 +12,7 @@ class XPath:
         "IsTopDeveloper": "//meta[@itemprop='topDeveloperBadgeUrl']/@itemprop",
         "DeveloperURL": "//div[@class='info-container']//div[@itemprop='author']/meta/@content",
         "Price": "//span[@itemprop='offers' and @itemtype='http://schema.org/Offer']/meta[@itemprop='price']/@content",
-        "Reviewers": "//div[@class='score-container']/meta[@itemprop='ratingCount']/@content",
+        "Reviewers": "//div[@class='score-container']/div[@class='score']/text()",
         "Description": "//div[@class='show-more-content text-body' and @itemprop='description']/div/text()|//div[@class='show-more-content text-body' and @itemprop='description']/div/p/text()",
         "WhatsNew": "//div[@class='recent-change']/text()",
         "HaveInAppPurchases": "//div[@class='title' and contains(text(),'app')]/following-sibling::div/text()",
@@ -116,8 +116,12 @@ class parser:
             app_data['Category'] = tmp_value
 
         # 3 - Reviewers
-        tmp_value = self.extract_node_text(html_map, 'Reviewers', True)
-        tmp_value = tmp_value[1].replace('(', '').replace(')', '').replace(',','').replace('.', '')
+        # update reviewers score's deal method to avoid  'NoneType' object has no attribute '__getitem__' error caused by apps without review
+        tmp_value = self.extract_node_text(html_map, 'Reviewers')
+        if tmp_value is None:
+            tmp_value = 0
+        else:
+            tmp_value = tmp_value.replace('(', '').replace(')', '').replace(',','').replace('.', '')
         app_data['Reviewers'] = int(tmp_value)
 
         # 4 - Developer Urls (Privacy, Email and Website)
