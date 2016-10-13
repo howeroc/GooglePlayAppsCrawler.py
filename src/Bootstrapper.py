@@ -175,6 +175,9 @@ class Bootstrapper:
         self._logger.info('Scraping links of Category : %s' % category_name)
         parsed_urls = set()
 
+        # proxies update on every category
+        proxies = TorProxy.get_proxy()
+
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
@@ -183,7 +186,7 @@ class Bootstrapper:
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
-                                        proxies=TorProxy.get_proxy())
+                                        proxies=proxies)
                 self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -220,7 +223,7 @@ class Bootstrapper:
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=TorProxy.get_proxy())
+                                         proxies=proxies)
                 self._logger.info('Category url : %s' % category_url + '?authuser=0&hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -268,6 +271,9 @@ class Bootstrapper:
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
 
+        # proxies update on every category
+        proxies = TorProxy.get_proxy()
+
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
@@ -277,7 +283,7 @@ class Bootstrapper:
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self)
-                                         proxies=TorProxy.get_proxy())
+                                         proxies=proxies)
                 self._logger.info('Search url : %s' % post_url + '&hl=en')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -318,7 +324,7 @@ class Bootstrapper:
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=TorProxy.get_proxy())
+                                         proxies=proxies)
                 self._logger.info('Search url : %s' % post_url + '&hl=en')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
