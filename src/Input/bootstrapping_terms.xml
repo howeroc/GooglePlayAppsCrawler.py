@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <bootstrapping_elements>
 	<top_level_categories>
-		<tl_category name='Top Selling Free'>https://play.google.com/store/apps/collection/topselling_free</tl_category>
-		<tl_category name='Top Selling Paid'>https://play.google.com/store/apps/collection/topselling_paid</tl_category>
-		<tl_category name='Top Grossing'>https://play.google.com/store/apps/collection/topgrossing</tl_category>
-		<tl_category name='Top New Free'>https://play.google.com/store/apps/collection/topselling_new_free</tl_category>
-		<tl_category name='Top New Paid'>https://play.google.com/store/apps/collection/topselling_new_paid</tl_category>
-		<tl_category name='Top New Free Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_new_free</tl_category>
+		<!--<tl_category name='Top Selling Free'>https://play.google.com/store/apps/collection/topselling_free</tl_category>-->
+		<!--<tl_category name='Top Selling Paid'>https://play.google.com/store/apps/collection/topselling_paid</tl_category>-->
+		<!--<tl_category name='Top Grossing'>https://play.google.com/store/apps/collection/topgrossing</tl_category>-->
+		<!--<tl_category name='Top New Free'>https://play.google.com/store/apps/collection/topselling_new_free</tl_category>-->
+		<!--<tl_category name='Top New Paid'>https://play.google.com/store/apps/collection/topselling_new_paid</tl_category>-->
+		<!--<tl_category name='Top New Free Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_new_free</tl_category>-->
 		<tl_category name='Top New Paid Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_new_paid</tl_category>
-		<tl_category name='Top Grossing Games'>https://play.google.com/store/apps/category/GAME/collection/topgrossing</tl_category>
+		<!--<tl_category name='Top Grossing Games'>https://play.google.com/store/apps/category/GAME/collection/topgrossing</tl_category>-->
 	</top_level_categories>
 	<categories>
-		<category>BOOKS</category>
+<!--		<category>BOOKS</category>
 	    <category>BUSINESS</category>
 	    <category>COMICS</category>
 	    <category>COMMUNICATION</category>
@@ -41,8 +41,8 @@
 	    <category>CASUAL</category>
 	    <category>CARDS</category>
 	    <category>RACING</category>
-		<!--自定义分类-->
-		<!--games-->
+		&lt;!&ndash;自定义分类&ndash;&gt;
+		&lt;!&ndash;games&ndash;&gt;
 		<category>Action</category>
 		<category>Adventure</category>
 		<category>Arcade</category>
@@ -60,7 +60,7 @@
 		<category>strategy</category>
 		<category>Trivia</category>
 		<category>Word</category>
-		<!--apps-->
+		&lt;!&ndash;apps&ndash;&gt;
 		<category>Android Wear</category>
 		<category>Art</category>
 		<category>Design</category>
@@ -104,11 +104,11 @@
 		<category>Video Players</category>
 		<category>Editors</category>
 		<category>Weather</category>
-		<!--自定义分类结束-->
+		&lt;!&ndash;自定义分类结束&ndash;&gt;-->
 
 	</categories>
 	<misc_terms>
-		<misc>INDIE</misc>
+<!--		<misc>INDIE</misc>
 		<misc>ZOMBIE</misc>
 		<misc>CATS</misc>
 		<misc>ROOT</misc>
@@ -122,10 +122,10 @@
 		<misc>PLAYER</misc>
 		<misc>WINE</misc>
 		<misc>ANTIVIRUS</misc>
-		<misc>PORN</misc>
+		<misc>PORN</misc>-->
 	</misc_terms>
 	<countries>
-		<country>Afghanistan</country>
+<!--		<country>Afghanistan</country>
 		<country>Albania</country>
 		<country>Algeria</country>
 		<country>American</country>
@@ -357,6 +357,6 @@
 		<country>Wallis</country>
 		<country>Yemen</country>
 		<country>Zambia</country>
-		<country>Zimbabwe</country>
+		<country>Zimbabwe</country>-->
 	</countries>
 </bootstrapping_elements>
