@@ -93,8 +93,11 @@ class Bootstrapper:
                      'start': multiplier*base,
                      'num': base,
                      'numChildren': 0,
+                     'cctcss': 'square-cover',
+                     'cllayout': 'NORMAL',
                      'ipf': 1,
-                     'xhr' : 1}
+                     'xhr' : 1,
+                     'hl': 'en'}
 
         return post_data
 
