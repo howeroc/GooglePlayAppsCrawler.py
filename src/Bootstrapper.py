@@ -201,9 +201,10 @@ class Bootstrapper:
         self._logger.info('Change ip : %s' % rest)
 
         # pint current proxy address
-        session = requesocks.session()
-        session.proxies = self._proxies
-        proxy_ip = session.get("http://httpbin.org/ip").text
+        # session = requesocks.session()
+        # session.proxies = self._proxies
+        # proxy_ip = session.get("http://httpbin.org/ip").text
+        proxy_ip = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
         self._logger.info('Proxy ip : %s' %proxy_ip)
 
         http_errors = 0
