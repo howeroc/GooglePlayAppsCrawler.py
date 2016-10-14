@@ -198,8 +198,9 @@ class Bootstrapper:
 
         # pint current proxy address
         self._session.proxies = proxies
-        self._session.get("http://httpbin.org/ip").text
-
+        proxy_ip = self._session.get("http://httpbin.org/ip").text
+        self._logger.info('Proxy ip : %s' %proxy_ip)
+        
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
