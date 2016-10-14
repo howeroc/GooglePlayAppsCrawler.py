@@ -197,20 +197,13 @@ class Bootstrapper:
         parsed_urls = set()
 
         # proxies update on crawl every category
+        tor_proxies = TorProxy.get_proxy()
 
-
-
-        # pint current proxy address
-        # session = requesocks.session()
-        # session.proxies = self._proxies
-        # proxy_ip = session.get("http://httpbin.org/ip").text
-        this_proxies = TorProxy.get_proxy()
-
-        json_str = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
+        # Get current proxy ip info
+        json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
         proxy_dict = simplejson.loads(json_str)
-        self._logger.info('proxies : %s' % str(self.proxies))
-        self._logger.info('The Tor\'s proxy ip : %s' %proxy_dict['origin'])
 
+        total_urls_len = 0
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
@@ -219,17 +212,22 @@ class Bootstrapper:
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
-                                        proxies=self.proxies)
-                self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us')
+                                        proxies=tor_proxies)
+                self._logger.info('Category url : %s; Proxy ip : %s' % (category_url + '?hl=en&gl=us', proxy_dict['origin']))
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
                     self._logger.critical('Error [%d] on Response for : %s'
                                        % (response.status_code, category_name))
                 else:
-                    for url in self.parse_app_urls(response.text):
+                    urls = self.parse_app_urls(response.text)
+                    urls_len = 0
+                    for url in urls:
                         self._mongo_wrapper.insert_on_queue(url)
                         parsed_urls.add(url)
+                        urls_len+=1
+                    self._logger.info('Result number : %d' % urls_len)
+                    total_urls_len += urls_len
 
                     break # Response worked
 
@@ -257,8 +255,8 @@ class Bootstrapper:
                                          HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=self.proxies)
-                self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us' + post_str)
+                                         proxies=tor_proxies)
+                self._logger.info('Category url : %s; Proxy ip : %s' % (category_url + '?hl=en&gl=us' + post_str, proxy_dict['origin']))
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
@@ -275,7 +273,7 @@ class Bootstrapper:
                         self._mongo_wrapper.insert_on_queue(url)
                         #Utils.sleep()
                         urls_len+=1
-
+                    total_urls_len += urls_len
                     self._logger.info('Result number : %d' % urls_len)
 
 
@@ -289,6 +287,8 @@ class Bootstrapper:
                 print 'SSL_Error : ' + error_str
 
             current_multiplier+=1
+
+        self._logger.info('Total app urls number : %d' % total_urls_len)
 
     def crawl_by_search_word(self, word):
         """
@@ -311,9 +311,14 @@ class Bootstrapper:
         post_url = self.assemble_post_url(word)
         post_data = self.assemble_word_search_post_data()
 
-        # proxies update on every category
-        proxies = TorProxy.get_proxy()
+        # proxies update on crawl every category
+        tor_proxies = TorProxy.get_proxy()
 
+        # Get current proxy ip info
+        json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
+        proxy_dict = simplejson.loads(json_str)
+
+        total_urls_len = 0
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
@@ -323,18 +328,22 @@ class Bootstrapper:
                                         headers=HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self)
-                                         proxies=proxies)
-                self._logger.info('Search url : %s' % post_url + '&hl=en')
+                                         proxies=tor_proxies)
+                self._logger.info('Search url : %s; Tor proxy ip: %s' % (post_url + '&hl=en', proxy_dict['origin']))
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
                     self._logger.critical('Error [%d] on Response for : %s'
                                           % (response.status_code, word))
                 else:
-                    for url in self.parse_app_urls(response.text):
+                    urls = self.parse_app_urls(response.text)
+                    urls_len = 0
+                    for url in urls:
                         self._mongo_wrapper.insert_on_queue(url)
                         parsed_urls.add(url)
-
+                        urls_len+=1
+                    total_urls_len += urls_len
+                    self._logger.info('Result number : %d' % urls_len)
                     break # Response worked
 
             except requests.exceptions.SSLError as error:
@@ -364,21 +373,26 @@ class Bootstrapper:
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=proxies)
-                self._logger.info('Search url : %s' % post_url + '&hl=en')
+                                         proxies=tor_proxies)
+                self._logger.info('Search url : %s; Tor proxy ip: %s' % (post_url + '&hl=en', proxy_dict['origin']))
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
                     self._logger.critical('Error [%d] on Response for : %s'
                                           % (response.status_code, word))
                 else:
-                    for url in self.parse_app_urls(response.text):
+                    urls = self.parse_app_urls(response.text)
+                    urls_len = 0
+                    for url in urls:
                         if url in parsed_urls:
                             return
 
                         self._mongo_wrapper.insert_on_queue(url)
                         parsed_urls.add(url)
                         #Utils.sleep()
+                        urls_len+=1
+                    total_urls_len += urls_len
+                    self._logger.info('Result number : %d' % urls_len)
 
             except requests.exceptions.SSLError as error:
                 #fix the errno is NoneType error
@@ -389,6 +403,7 @@ class Bootstrapper:
                     error_str = error.strerror
                 print 'SSL_Error : ' + error_str
                 # print 'SSL_Error : ' + error.errno
+        self._logger.info('Total app urls number : %d' % total_urls_len)
 
     def start_bootstrapping(self):
         """
