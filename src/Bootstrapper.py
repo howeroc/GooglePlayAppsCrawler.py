@@ -198,14 +198,15 @@ class Bootstrapper:
         parsed_urls = set()
 
         # proxies update on crawl every category
-        self._tor.change_ip()
+        # self._tor.change_ip()
+
+
 
         # pint current proxy address
         # session = requesocks.session()
         # session.proxies = self._proxies
         # proxy_ip = session.get("http://httpbin.org/ip").text
-        this_proxies = {'http': 'socks5://127.0.0.1:9050',
-                        'https': 'socks5://127.0.0.1:9050'}
+        this_proxies = TorProxy.get_proxy()
         json_str = requests.get('http://httpbin.org/ip', proxies=this_proxies).text
         proxy_dict = simplejson.loads(json_str)
         self._logger.info('The Tor\'s proxy ip : %s' %proxy_dict['origin'])
