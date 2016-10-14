@@ -5,6 +5,7 @@ import requests
 import sys
 import errno
 import re as regex
+import requesocks
 from lxml import html
 from shared.TorProxy import TorProxy
 from shared.Utils import Utils
@@ -30,6 +31,9 @@ class Bootstrapper:
         params['auth_database'] = 'MobileAppsData'
         params['write_concern'] = True
         self._params = params
+
+        session = requesocks.session()
+        self._session = session
 
     def get_arguments_parser(self):
         """
@@ -192,6 +196,10 @@ class Bootstrapper:
         # proxies update on every category
         proxies = TorProxy.get_proxy()
 
+        # pint current proxy address
+        self._session.proxies = proxies
+        self._session.get("http://httpbin.org/ip").text
+
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
@@ -235,11 +243,11 @@ class Bootstrapper:
             try:
                 response = requests.get(category_url + '?&hl=en&gl=us' + post_str,
                                          # data = post_data,
-                                         headers=HTTPUtils.headers,
+                                         HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
                                          proxies=proxies)
-                self._logger.info('Category url : %s' % category_url + '?authuser=0&hl=en&gl=us' + post_str)
+                self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us' + post_str)
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
