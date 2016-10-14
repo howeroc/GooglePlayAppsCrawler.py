@@ -5,6 +5,7 @@ import requests
 import sys
 import errno
 import re as regex
+import simplejson
 import requesocks
 from lxml import html
 from shared.TorProxy import TorProxy
@@ -205,8 +206,9 @@ class Bootstrapper:
         # proxy_ip = session.get("http://httpbin.org/ip").text
         this_proxies = {'http': 'socks5://127.0.0.1:9050',
                    'https': 'socks5://127.0.0.1:9050'}
-        proxy_ip = requests.get('http://httpbin.org/ip', proxies=this_proxies).text
-        self._logger.info('Proxy ip : %s' %proxy_ip)
+        json_str = requests.get('http://httpbin.org/ip', proxies=this_proxies).text
+        proxy_dict = simplejson.loads(json_str)
+        self._logger.info('Proxy ip : %s' %proxy_dict['origin'])
 
         http_errors = 0
         while http_errors <= self._args['max_errors']:
