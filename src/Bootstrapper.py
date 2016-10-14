@@ -35,6 +35,10 @@ class Bootstrapper:
         session = requesocks.session()
         self._session = session
 
+        self._proxies = {'http':  'socks5://127.0.0.1:9050',
+                         'https': 'socks5://127.0.0.1:9050'}
+
+
     def get_arguments_parser(self):
         """
         Creates a parsing object using the argsparse
@@ -197,10 +201,11 @@ class Bootstrapper:
         proxies = TorProxy.get_proxy()
 
         # pint current proxy address
-        self._session.proxies = proxies
+        self._session.proxies = self._proxies
+
         proxy_ip = self._session.get("http://httpbin.org/ip").text
         self._logger.info('Proxy ip : %s' %proxy_ip)
-        
+
         http_errors = 0
         while http_errors <= self._args['max_errors']:
 
