@@ -202,6 +202,7 @@ class Bootstrapper:
 
         # pint current proxy address
         session = requesocks.session()
+        session.proxies = self._proxies
         proxy_ip = session.get("http://httpbin.org/ip").text
         self._logger.info('Proxy ip : %s' %proxy_ip)
 
