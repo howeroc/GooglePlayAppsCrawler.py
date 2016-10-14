@@ -108,7 +108,7 @@ class Bootstrapper:
 
         start = multiplier * base
 
-        url_data = '&start=' + str(start) + '&num' + str(base)
+        url_data = '&start=' + str(start) + '&num=' + str(base)
 
         return url_data
 
@@ -247,8 +247,7 @@ class Bootstrapper:
                                       % (response.status_code, category_name))
                 else:
                     urls = self.parse_app_urls(response.text)
-                    urls_len = len(urls)
-                    self._logger.info('Result number : %d' % urls_len)
+                    urls_len = 0
                     for url in urls:
                         if url in parsed_urls:
                             return
@@ -256,6 +255,10 @@ class Bootstrapper:
                         parsed_urls.add(url)
                         self._mongo_wrapper.insert_on_queue(url)
                         #Utils.sleep()
+                        urls_len+=1
+
+                    self._logger.info('Result number : %d' % urls_len)
+
 
             except requests.exceptions.SSLError as error:
                 # fix the errno is NoneType error
