@@ -247,7 +247,8 @@ class Bootstrapper:
                                       % (response.status_code, category_name))
                 else:
                     urls = self.parse_app_urls(response.text)
-                    self._logger.info('Result number : %s' % len(urls))
+                    urls_len = len(urls)
+                    self._logger.info('Result number : %d' % urls_len)
                     for url in urls:
                         if url in parsed_urls:
                             return
