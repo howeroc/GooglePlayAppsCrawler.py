@@ -108,7 +108,7 @@ class Bootstrapper:
 
         start = multiplier * base
 
-        str = '&start=' + start + '&num' + base
+        str = '&start=' + str(start) + '&num' + str(base)
 
         return str
 
