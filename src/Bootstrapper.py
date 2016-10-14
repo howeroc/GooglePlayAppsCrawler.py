@@ -102,16 +102,6 @@ class Bootstrapper:
 
         return post_data
 
-    # Created by howeroc to post data with url not with post_data
-    def assemble_category_post_url_data(self, multiplier, base):
-        """ Creates a data in string format based on received arguments to append to url """
-
-        start = multiplier * base
-
-        url_data = '&start=' + str(start) + '&num=' + str(base)
-
-        return url_data
-
     def assemble_word_search_post_data(self, page_token=None):
         """
         Assembles the Postdata for the 'Search' request
@@ -227,19 +217,18 @@ class Bootstrapper:
         base_skip = 60
         current_multiplier = 1
 
-        while http_errors <= self._args['max_errors'] or current_multiplier < 10:
+        while http_errors <= self._args['max_errors']:
 
             post_data = self.assemble_category_post_data(current_multiplier,
                                                          base_skip)
-            post_str = self.assemble_category_post_url_data(current_multiplier, base_skip)
             try:
-                response = requests.get(category_url + '?&hl=en&gl=us' + post_str,
-                                         # data = post_data,
+                response = requests.post(category_url + '?authuser=0',
+                                         data = post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
                                          proxies=proxies)
-                self._logger.info('Category url : %s' % category_url + '?authuser=0&hl=en&gl=us' + post_str)
+                self._logger.info('Category url : %s' % category_url + '?authuser=0&hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
                     #Utils.sleep(http_errors)
