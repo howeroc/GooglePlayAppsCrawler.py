@@ -198,7 +198,7 @@ class Bootstrapper:
         parsed_urls = set()
 
         # proxies update on every category
-        proxies = TorProxy.get_proxy()
+        TorProxy.change_ip()
 
         # pint current proxy address
         self._session.proxies = self._proxies
@@ -214,7 +214,7 @@ class Bootstrapper:
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
-                                        proxies=proxies)
+                                        proxies=self._proxies)
                 self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
