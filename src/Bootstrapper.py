@@ -32,6 +32,8 @@ class Bootstrapper:
         params['write_concern'] = True
         self._params = params
 
+        self._tor = TorProxy()
+
         self._proxies = {'http':  'socks5://127.0.0.1:9050',
                          'https': 'socks5://127.0.0.1:9050'}
 
@@ -195,7 +197,7 @@ class Bootstrapper:
         parsed_urls = set()
 
         # proxies update on crawl every category
-        TorProxy.change_ip()
+        self._tor.change_ip()
 
         # pint current proxy address
         session = requesocks.session()
