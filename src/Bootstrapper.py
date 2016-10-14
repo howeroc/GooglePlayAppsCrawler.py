@@ -108,9 +108,9 @@ class Bootstrapper:
 
         start = multiplier * base
 
-        str = '&start=' + str(start) + '&num' + str(base)
+        url_data = '&start=' + str(start) + '&num' + str(base)
 
-        return str
+        return url_data
 
     def assemble_word_search_post_data(self, page_token=None):
         """
