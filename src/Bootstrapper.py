@@ -233,7 +233,7 @@ class Bootstrapper:
                                                          base_skip)
             post_str = self.assemble_category_post_url_data(current_multiplier, base_skip)
             try:
-                response = requests.post(category_url + '?authuser=0&hl=en&gl=us' + post_str,
+                response = requests.get(category_url + '?&hl=en&gl=us' + post_str,
                                          # data = post_data,
                                          headers=HTTPUtils.headers,
                                          verify=self._verify_certificate,
