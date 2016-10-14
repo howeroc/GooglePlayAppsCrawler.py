@@ -197,8 +197,7 @@ class Bootstrapper:
         parsed_urls = set()
 
         # proxies update on crawl every category
-        rest = self._tor.change_ip()
-        self._logger.info('Change ip : %s' % rest)
+        self._tor.change_ip()
 
         # pint current proxy address
         # session = requesocks.session()
