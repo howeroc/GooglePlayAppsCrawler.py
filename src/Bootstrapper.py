@@ -226,8 +226,9 @@ class Bootstrapper:
                         self._mongo_wrapper.insert_on_queue(url)
                         parsed_urls.add(url)
                         urls_len+=1
-                    self._logger.info('Result number : %d' % urls_len)
+
                     total_urls_len += urls_len
+                    self._logger.info('Result number : %d;Total result number:%d' % (urls_len, total_urls_len))
 
                     break # Response worked
 
@@ -273,8 +274,9 @@ class Bootstrapper:
                         self._mongo_wrapper.insert_on_queue(url)
                         #Utils.sleep()
                         urls_len+=1
+
                     total_urls_len += urls_len
-                    self._logger.info('Result number : %d' % urls_len)
+                    self._logger.info('Result number : %d;Total result number:%d' % (urls_len, total_urls_len))
 
 
             except requests.exceptions.SSLError as error:
@@ -287,8 +289,6 @@ class Bootstrapper:
                 print 'SSL_Error : ' + error_str
 
             current_multiplier+=1
-
-        self._logger.info('Total app urls number : %d' % total_urls_len)
 
     def crawl_by_search_word(self, word):
         """
@@ -342,8 +342,9 @@ class Bootstrapper:
                         self._mongo_wrapper.insert_on_queue(url)
                         parsed_urls.add(url)
                         urls_len+=1
+
                     total_urls_len += urls_len
-                    self._logger.info('Result number : %d' % urls_len)
+                    self._logger.info('Result number : %d;Total result number:%d' % (urls_len, total_urls_len))
                     break # Response worked
 
             except requests.exceptions.SSLError as error:
@@ -391,8 +392,9 @@ class Bootstrapper:
                         parsed_urls.add(url)
                         #Utils.sleep()
                         urls_len+=1
+
                     total_urls_len += urls_len
-                    self._logger.info('Result number : %d' % urls_len)
+                    self._logger.info('Result number : %d;Total result number:%d' % (urls_len, total_urls_len))
 
             except requests.exceptions.SSLError as error:
                 #fix the errno is NoneType error
@@ -403,7 +405,6 @@ class Bootstrapper:
                     error_str = error.strerror
                 print 'SSL_Error : ' + error_str
                 # print 'SSL_Error : ' + error.errno
-        self._logger.info('Total app urls number : %d' % total_urls_len)
 
     def start_bootstrapping(self):
         """
