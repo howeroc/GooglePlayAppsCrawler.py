@@ -36,6 +36,8 @@ class Bootstrapper:
 
         self._proxies = {'http':  'socks5://127.0.0.1:9050',
                          'https': 'socks5://127.0.0.1:9050'}
+        proxy_ip = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
+        self._logger.info('Proxy ip : %s' % proxy_ip)
 
 
     def get_arguments_parser(self):
