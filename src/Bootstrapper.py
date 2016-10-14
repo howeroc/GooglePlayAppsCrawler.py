@@ -35,7 +35,7 @@ class Bootstrapper:
         proxies = {}
         proxies['http'] = 'socks5://127.0.0.1:9050'
         proxies['https'] = 'socks5://127.0.0.1:9050'
-        self._proxies = proxies
+        self.proxies = proxies
 
 
     def get_arguments_parser(self):
@@ -208,7 +208,7 @@ class Bootstrapper:
 
         json_str = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
         proxy_dict = simplejson.loads(json_str)
-        self._logger.info('proxies : %s' % str(self._proxies))
+        self._logger.info('proxies : %s' % str(self.proxies))
         self._logger.info('The Tor\'s proxy ip : %s' %proxy_dict['origin'])
 
         http_errors = 0
@@ -219,7 +219,7 @@ class Bootstrapper:
                                         HTTPUtils.headers,
                                         verify=self._verify_certificate,
                                         # proxies=Utils.get_proxy(self))
-                                        proxies=self._proxies)
+                                        proxies=self.proxies)
                 self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us')
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
@@ -257,7 +257,7 @@ class Bootstrapper:
                                          HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=self._proxies)
+                                         proxies=self.proxies)
                 self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us' + post_str)
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
