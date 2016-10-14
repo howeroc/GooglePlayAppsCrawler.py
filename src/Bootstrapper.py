@@ -32,9 +32,6 @@ class Bootstrapper:
         params['write_concern'] = True
         self._params = params
 
-        session = requesocks.session()
-        self._session = session
-
         self._proxies = {'http':  'socks5://127.0.0.1:9050',
                          'https': 'socks5://127.0.0.1:9050'}
 
@@ -197,13 +194,12 @@ class Bootstrapper:
         self._logger.info('Scraping links of Category : %s' % category_name)
         parsed_urls = set()
 
-        # proxies update on every category
+        # proxies update on crawl every category
         TorProxy.change_ip()
 
         # pint current proxy address
-        self._session.proxies = self._proxies
-
-        proxy_ip = self._session.get("http://httpbin.org/ip").text
+        session = requesocks.session()
+        proxy_ip = session.get("http://httpbin.org/ip").text
         self._logger.info('Proxy ip : %s' %proxy_ip)
 
         http_errors = 0
@@ -252,7 +248,7 @@ class Bootstrapper:
                                          HTTPUtils.headers,
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
-                                         proxies=proxies)
+                                         proxies=self._proxies)
                 self._logger.info('Category url : %s' % category_url + '?hl=en&gl=us' + post_str)
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
