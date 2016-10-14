@@ -205,8 +205,10 @@ class Bootstrapper:
         # session.proxies = self._proxies
         # proxy_ip = session.get("http://httpbin.org/ip").text
         this_proxies = TorProxy.get_proxy()
+
         json_str = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
         proxy_dict = simplejson.loads(json_str)
+        self._logger.info('proxies : %s' % str(self._proxies))
         self._logger.info('The Tor\'s proxy ip : %s' %proxy_dict['origin'])
 
         http_errors = 0
