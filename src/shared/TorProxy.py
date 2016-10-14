@@ -7,6 +7,7 @@ class TorProxy:
         with Controller.from_port(port = 9051) as controller:
             controller.authenticate(password="weiphone2011")
             controller.signal(Signal.NEWNYM)
+        return  'success'
     @staticmethod
     def get_proxy():
         with Controller.from_port(port = 9051) as controller:
