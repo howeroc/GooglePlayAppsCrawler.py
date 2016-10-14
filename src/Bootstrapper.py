@@ -206,7 +206,7 @@ class Bootstrapper:
         # proxy_ip = session.get("http://httpbin.org/ip").text
         this_proxies = {'http': 'socks5://127.0.0.1:9050',
                    'https': 'socks5://127.0.0.1:9050'}
-        json_str = requests.get('http://httpbin.org/ip', proxies=this_proxies).text
+        json_str = requests.get('http://httpbin.org/ip', proxies=self._proxies).text
         proxy_dict = simplejson.loads(json_str)
         self._logger.info('Proxy ip : %s' %proxy_dict['origin'])
 
