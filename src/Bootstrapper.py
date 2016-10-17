@@ -182,6 +182,18 @@ class Bootstrapper:
                 url = node.attrib["href"]
                 yield self.fix_url(url)
 
+    def is_json(self, json_str):
+        """
+        Validate the string can be converted to json or not
+        :param json_str: the string to be validated
+        :return:
+        """
+        try:
+            simplejson.loads(json_str)
+        except ValueError:
+            return False
+        return True
+
     def crawl_category(self, category):
         """
         Executes a GET request for the url of the category received.
@@ -202,7 +214,7 @@ class Bootstrapper:
 
         # Get current proxy ip info
         json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
-        if not json_str is None:
+        if self.is_json(json_str):
             proxy_dict = simplejson.loads(json_str)
         else:
             proxy_dict = {'origin':'0.0.0.0'}
@@ -320,7 +332,7 @@ class Bootstrapper:
 
         # Get current proxy ip info
         json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
-        if not json_str is None:
+        if self.is_json(json_str):
             proxy_dict = simplejson.loads(json_str)
         else:
             proxy_dict = {'origin':'0.0.0.0'}
