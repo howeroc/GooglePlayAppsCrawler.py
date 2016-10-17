@@ -6,6 +6,7 @@ import sys
 import errno
 import re as regex
 import simplejson
+import time
 from lxml import html
 from shared.TorProxy import TorProxy
 from shared.Utils import Utils
@@ -375,6 +376,7 @@ class Bootstrapper:
                                          verify=self._verify_certificate,
                                          # proxies=Utils.get_proxy(self))
                                          proxies=tor_proxies)
+                time.sleep(1)
                 self._logger.info('Search url : %s; Tor proxy ip: %s' % (post_url + '&hl=en', proxy_dict['origin']))
                 if response.status_code != requests.codes.ok:
                     http_errors+=1
