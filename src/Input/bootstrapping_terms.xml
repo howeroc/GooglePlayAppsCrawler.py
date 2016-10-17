@@ -6,15 +6,15 @@
 		<!--<tl_category name='Top Grossing'>https://play.google.com/store/apps/collection/topgrossing</tl_category>-->
 		<!--<tl_category name='Top New Free'>https://play.google.com/store/apps/collection/topselling_new_free</tl_category>-->
 		<!--<tl_category name='Top New Paid'>https://play.google.com/store/apps/collection/topselling_new_paid</tl_category>-->
-		<tl_category name='Top Free in Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_free</tl_category>
+		<!--<tl_category name='Top Free in Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_free</tl_category>-->
 		<!--<tl_category name='Top Paid in Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_paid</tl_category>-->
 		<!--<tl_category name='Top New Free Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_new_free</tl_category>-->
 		<!--<tl_category name='Top New Paid Games'>https://play.google.com/store/apps/category/GAME/collection/topselling_new_paid</tl_category>-->
 		<!--<tl_category name='Top Grossing Games'>https://play.google.com/store/apps/category/GAME/collection/topgrossing</tl_category>-->
 	</top_level_categories>
 	<categories>
-<!--		<category>BOOKS</category>
-	    <category>BUSINESS</category>
+		<category>BOOKS</category>
+<!--	    <category>BUSINESS</category>
 	    <category>COMICS</category>
 	    <category>COMMUNICATION</category>
 	    <category>EDUCATION</category>
