@@ -202,7 +202,10 @@ class Bootstrapper:
 
         # Get current proxy ip info
         json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
-        proxy_dict = simplejson.loads(json_str)
+        if not json_str is None:
+            proxy_dict = simplejson.loads(json_str)
+        else:
+            proxy_dict = {'origin':'0.0.0.0'}
 
         total_urls_len = 0
         http_errors = 0
@@ -317,7 +320,10 @@ class Bootstrapper:
 
         # Get current proxy ip info
         json_str = requests.get('http://httpbin.org/ip', proxies=tor_proxies).text
-        proxy_dict = simplejson.loads(json_str)
+        if not json_str is None:
+            proxy_dict = simplejson.loads(json_str)
+        else:
+            proxy_dict = {'origin':'0.0.0.0'}
 
         total_urls_len = 0
         http_errors = 0
