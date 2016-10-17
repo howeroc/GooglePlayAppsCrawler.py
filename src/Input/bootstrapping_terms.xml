@@ -14,7 +14,7 @@
 	</top_level_categories>
 	<categories>
 		<category>BOOKS</category>
-<!--	    <category>BUSINESS</category>
+	    <category>BUSINESS</category>
 	    <category>COMICS</category>
 	    <category>COMMUNICATION</category>
 	    <category>EDUCATION</category>
@@ -43,8 +43,8 @@
 	    <category>CASUAL</category>
 	    <category>CARDS</category>
 	    <category>RACING</category>
-		&lt;!&ndash;自定义分类&ndash;&gt;
-		&lt;!&ndash;games&ndash;&gt;
+		<!-- 自定义分类 -->
+		<!-- games -->
 		<category>Action</category>
 		<category>Adventure</category>
 		<category>Arcade</category>
@@ -62,7 +62,7 @@
 		<category>strategy</category>
 		<category>Trivia</category>
 		<category>Word</category>
-		&lt;!&ndash;apps&ndash;&gt;
+		<!-- apps -->
 		<category>Android Wear</category>
 		<category>Art</category>
 		<category>Design</category>
@@ -106,11 +106,11 @@
 		<category>Video Players</category>
 		<category>Editors</category>
 		<category>Weather</category>
-		&lt;!&ndash;自定义分类结束&ndash;&gt;-->
+		<!--自定义分类结束-->
 
 	</categories>
 	<misc_terms>
-<!--		<misc>INDIE</misc>
+		<misc>INDIE</misc>
 		<misc>ZOMBIE</misc>
 		<misc>CATS</misc>
 		<misc>ROOT</misc>
@@ -124,10 +124,10 @@
 		<misc>PLAYER</misc>
 		<misc>WINE</misc>
 		<misc>ANTIVIRUS</misc>
-		<misc>PORN</misc>-->
+		<misc>PORN</misc>
 	</misc_terms>
 	<countries>
-<!--		<country>Afghanistan</country>
+		<country>Afghanistan</country>
 		<country>Albania</country>
 		<country>Algeria</country>
 		<country>American</country>
@@ -359,6 +359,6 @@
 		<country>Wallis</country>
 		<country>Yemen</country>
 		<country>Zambia</country>
-		<country>Zimbabwe</country>-->
+		<country>Zimbabwe</country>
 	</countries>
 </bootstrapping_elements>
