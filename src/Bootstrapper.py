@@ -235,6 +235,7 @@ class Bootstrapper:
                     #Utils.sleep(http_errors)
                     self._logger.critical('Error [%d] on Response for : %s'
                                        % (response.status_code, category_name))
+                    tor_proxies = TorProxy.get_proxy()  # change the ip
                 else:
                     urls = self.parse_app_urls(response.text)
                     urls_len = 0
@@ -279,6 +280,7 @@ class Bootstrapper:
                     #Utils.sleep(http_errors)
                     self._logger.critical('Error [%d] on Response for : %s'
                                       % (response.status_code, category_name))
+                    tor_proxies = TorProxy.get_proxy()  # change the ip
                 else:
                     urls = self.parse_app_urls(response.text)
                     urls_len = 0
