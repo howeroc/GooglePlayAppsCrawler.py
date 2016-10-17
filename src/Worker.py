@@ -178,6 +178,9 @@ class Worker:
                     else:
                         app['PkgName'] = ''
 
+                    # is downloaded or not
+                    app['isDownload'] = 'n'
+
                     # Reaching related apps
                     related_apps = parser.parse_related_apps(response.text)
 
@@ -191,11 +194,11 @@ class Worker:
                     self._mongo_wrapper._insert(app, self._params['apps_collection'])
 
                     # Re-Feeding seed collection with related-app urls
-                    # if app['RelatedUrls']:
-                    #     for url in app['RelatedUrls']:
-                    #         if not self._mongo_wrapper.app_processed(url, self._params['apps_collection']) and \
-                    #            not self._mongo_wrapper.app_processed(url, self._params['seed_collection']):
-                    #             self._mongo_wrapper.insert_on_queue(url, self._params['seed_collection'])
+                    if app['RelatedUrls']:
+                        for url in app['RelatedUrls']:
+                            if not self._mongo_wrapper.app_processed(url, self._params['apps_collection']) and \
+                               not self._mongo_wrapper.app_processed(url, self._params['seed_collection']):
+                                self._mongo_wrapper.insert_on_queue(url, self._params['seed_collection'])
 
                 except Exception as exception:
                     self._logger.error(exception)
