@@ -13,6 +13,5 @@ class TorProxy:
         with Controller.from_port(port = 9051) as controller:
             controller.authenticate(password="weiphone2011")
             controller.signal(Signal.NEWNYM)
-        proxies = {'http': 'socks5://127.0.0.1:9050',
-                   'https': 'socks5://127.0.0.1:9050'}
+        proxies = {'https': 'socks5://127.0.0.1:9050'}
         return proxies
