@@ -179,7 +179,10 @@ class Worker:
                         app['PkgName'] = ''
 
                     # is downloaded or not
-                    app['isDownload'] = 'n'
+                    app['IsDownload'] = False
+                    app['IsInfoSynced'] = False# is app info synced to mysql
+                    app['IsCheckedUpdate'] = False# is this app checked updateInfo
+                    app['IsBusy'] = False# is this app checked updateInfo
 
                     # Reaching related apps
                     related_apps = parser.parse_related_apps(response.text)
