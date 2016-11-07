@@ -171,6 +171,28 @@ class MongoDBWrapper:
 
         return self._database[collection].insert_one(app).acknowledged
 
+    def update_app(self, url, app, collection=None):
+        """
+        Add by howeroc
+
+        Update an app in the specific collection
+
+        Positional Arguments
+        - app (Any) - Record to be updated
+
+        Optional Arguments
+        - collection (str) - Name of the collection that the record should be
+        added to. (Default: None)
+
+        returns True if the operation worked, False otherwise
+        """
+        query = {'_id': url}
+
+        if collection is None:
+            return self._collection.update_one(query, app)
+
+        return self._database[collection].update_one(query, app)
+
     def ensure_index(self, field_name, collection=None):
         """
         Index creation method
@@ -189,6 +211,24 @@ class MongoDBWrapper:
         update = {'$set': {'IsBusy': True}}
 
         return self._collection.find_one_and_update(query, update)
+
+    def find_app_and_modify(self, collection=None):
+        """
+        Finds one app and check this app is need to update or not
+        """
+        query = {'IsCheckedUpdate': False, 'IsBusy': False}
+        update = {'$set': {'IsBusy': True}}
+
+        return self._database[collection].find_and_modify(query, update)
+
+    def update_app_check_status(self, collection):
+        """
+        Update all IsCheckedUpdate status to false
+        """
+        query = {'IsBusy': False}
+        update = {'$set': {'IsCheckedUpdate': False}}
+
+        self._database[collection].update_many(query, update)
 
     def remove_app_from_queue(self, app, collection=None):
         """
